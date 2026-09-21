@@ -1,4 +1,4 @@
-using ChipsPocket.Api.Endpoints;
+using ChipsPocket.Api.Endpoints.Auth;
 using ChipsPocket.Api.Extensions;
 using DiServiceInstaller;
 using Scalar.AspNetCore;
