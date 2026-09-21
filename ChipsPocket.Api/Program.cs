@@ -1,23 +1,18 @@
 using ChipsPocket.Api.Endpoints.Auth;
+using ChipsPocket.Api.Endpoints.Table;
 using ChipsPocket.Api.Extensions;
 using DiServiceInstaller;
+using FluentValidation;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.InstallServices(typeof(Program).Assembly);
+var assembly = typeof(Program).Assembly;
+
+builder.InstallServices(assembly);
 builder.AddServiceDefaults();
-builder.Services.AddOpenApi();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("Web", policy =>
-    {
-        policy
-            .WithOrigins("http://localhost:5173")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
+builder.Services.AddValidatorsFromAssembly(assembly);
+
 
 var app = builder.Build();
 
@@ -35,5 +30,6 @@ app.UseHttpsRedirection();
 app.MapDefaultEndpoints();
 
 app.MapAuthEndpoints();
+app.MapTablesEndpoints();
 
 app.Run();

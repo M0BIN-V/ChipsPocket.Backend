@@ -10,8 +10,6 @@ public class Table
     public required string CreatedById { get; set; }
 
     public required string Name { get; set; }
-    public required int MaxSeatCount { get; set; }
-
     public List<Seat> Seats { get; set; } = [];
 
     public DateTimeOffset CreatedAt { get; set; }
@@ -36,5 +34,8 @@ public class TableConfig : IEntityTypeConfiguration<Table>
         builder.HasMany(t => t.Seats)
             .WithOne(s => s.Table)
             .HasForeignKey(t => t.TableId);
+
+        builder.Property(x => x.CreatedById)
+            .HasMaxLength(255);
     }
 }
