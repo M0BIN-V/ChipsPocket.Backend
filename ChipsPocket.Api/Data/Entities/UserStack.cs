@@ -12,7 +12,7 @@ public class UserStack
     public User User { get; set; } = null!;
     public required string UserId { get; set; }
 
-    public List<TableChipCollection> ChipCollections { get; set; } = [];
+    public List<ChipCollection> ChipCollections { get; set; } = [];
 }
 
 public class UserStackConfig : IEntityTypeConfiguration<UserStack>

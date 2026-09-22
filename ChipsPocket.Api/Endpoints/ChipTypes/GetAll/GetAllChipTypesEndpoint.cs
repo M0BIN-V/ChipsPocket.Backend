@@ -11,7 +11,7 @@ public class GetAllChipTypesEndpoint : IEndpoint
     {
         group.MapGet("", async Task<Ok<List<ViewChipTypeDto>>> ([FromServices] AppDbContext db) =>
             {
-                var chipAppearances = await db.ChipTypes
+                var chipAppearances = await db.Chips
                     .Select(appearance => new ViewChipTypeDto(appearance.Id, appearance.Name, appearance.Picture))
                     .ToListAsync();
 

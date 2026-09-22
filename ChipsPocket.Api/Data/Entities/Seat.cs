@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using ChipsPocket.Api.Data.Entities.Abstractions;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChipsPocket.Api.Data.Entities;
 

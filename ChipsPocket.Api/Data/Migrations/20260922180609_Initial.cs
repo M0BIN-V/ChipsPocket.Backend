@@ -51,16 +51,17 @@ namespace ChipsPocket.Api.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChipTypes",
+                name: "Chips",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
-                    Picture = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false)
+                    Picture = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    Value = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChipTypes", x => x.Id);
+                    table.PrimaryKey("PK_Chips", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -215,31 +216,6 @@ namespace ChipsPocket.Api.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TableChip",
-                columns: table => new
-                {
-                    TableId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TypeId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Value = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TableChip", x => new { x.TypeId, x.TableId });
-                    table.ForeignKey(
-                        name: "FK_TableChip_ChipTypes_TypeId",
-                        column: x => x.TypeId,
-                        principalTable: "ChipTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TableChip_Tables_TableId",
-                        column: x => x.TableId,
-                        principalTable: "Tables",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "UserStack",
                 columns: table => new
                 {
@@ -265,7 +241,7 @@ namespace ChipsPocket.Api.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TableChipCollection",
+                name: "ChipCollection",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -273,9 +249,9 @@ namespace ChipsPocket.Api.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TableChipCollection", x => x.Id);
+                    table.PrimaryKey("PK_ChipCollection", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TableChipCollection_UserStack_UserStackId",
+                        name: "FK_ChipCollection_UserStack_UserStackId",
                         column: x => x.UserStackId,
                         principalTable: "UserStack",
                         principalColumn: "Id",
@@ -283,29 +259,28 @@ namespace ChipsPocket.Api.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CollectionTableChip",
+                name: "CollectionChip",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ChipTypeId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TableId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ChipId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Order = table.Column<int>(type: "INTEGER", nullable: false),
-                    TableChipCollectionId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    ChipCollectionId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CollectionTableChip", x => x.Id);
+                    table.PrimaryKey("PK_CollectionChip", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CollectionTableChip_TableChipCollection_TableChipCollectionId",
-                        column: x => x.TableChipCollectionId,
-                        principalTable: "TableChipCollection",
+                        name: "FK_CollectionChip_ChipCollection_ChipCollectionId",
+                        column: x => x.ChipCollectionId,
+                        principalTable: "ChipCollection",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CollectionTableChip_TableChip_ChipTypeId_TableId",
-                        columns: x => new { x.ChipTypeId, x.TableId },
-                        principalTable: "TableChip",
-                        principalColumns: new[] { "TypeId", "TableId" },
+                        name: "FK_CollectionChip_Chips_ChipId",
+                        column: x => x.ChipId,
+                        principalTable: "Chips",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -347,14 +322,19 @@ namespace ChipsPocket.Api.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CollectionTableChip_ChipTypeId_TableId",
-                table: "CollectionTableChip",
-                columns: new[] { "ChipTypeId", "TableId" });
+                name: "IX_ChipCollection_UserStackId",
+                table: "ChipCollection",
+                column: "UserStackId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CollectionTableChip_TableChipCollectionId",
-                table: "CollectionTableChip",
-                column: "TableChipCollectionId");
+                name: "IX_CollectionChip_ChipCollectionId",
+                table: "CollectionChip",
+                column: "ChipCollectionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CollectionChip_ChipId",
+                table: "CollectionChip",
+                column: "ChipId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Seat_Order_TableId",
@@ -371,16 +351,6 @@ namespace ChipsPocket.Api.Data.Migrations
                 name: "IX_Seat_UserId",
                 table: "Seat",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TableChip_TableId",
-                table: "TableChip",
-                column: "TableId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TableChipCollection_UserStackId",
-                table: "TableChipCollection",
-                column: "UserStackId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tables_CreatedById_Name",
@@ -418,7 +388,7 @@ namespace ChipsPocket.Api.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CollectionTableChip");
+                name: "CollectionChip");
 
             migrationBuilder.DropTable(
                 name: "Seat");
@@ -427,16 +397,13 @@ namespace ChipsPocket.Api.Data.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "TableChipCollection");
+                name: "ChipCollection");
 
             migrationBuilder.DropTable(
-                name: "TableChip");
+                name: "Chips");
 
             migrationBuilder.DropTable(
                 name: "UserStack");
-
-            migrationBuilder.DropTable(
-                name: "ChipTypes");
 
             migrationBuilder.DropTable(
                 name: "Tables");

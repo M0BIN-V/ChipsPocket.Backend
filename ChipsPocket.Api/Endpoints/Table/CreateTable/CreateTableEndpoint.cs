@@ -21,18 +21,8 @@ public class CreateTableEndpoint : IEndpoint
                 if (await db.Tables.AnyAsync(t => t.CreatedById == userId && t.Name == request.TableName))
                     return TypedResults.Conflict();
 
-
                 var table = Data.Entities.Table.Create(request.TableName, currentUser.Id);
 
-                foreach (var requestChip in request.Chips)
-                {
-                    var chipType = await db.ChipTypes
-                        .FirstOrDefaultAsync(t => t.Id == requestChip.ChipTypeId);
-
-                    if (chipType is null) return TypedResults.NotFound("chip type not found");
-
-                    table.AddChipType(chipType, requestChip.Value);
-                }
 
                 await db.Tables.AddAsync(table);
                 await db.SaveChangesAsync();

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using ChipsPocket.Api.Data.Entities.Abstractions;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChipsPocket.Api.Data.Entities;
 
@@ -15,8 +16,6 @@ public class Table : Entity
     public List<Seat> Seats { get; private set; } = [];
 
     public DateTimeOffset CreatedAt { get; private set; }
-
-    public List<TableChip> Chips { get; private set; } = [];
 
     public static Table Create(string name, string creatorId)
     {
@@ -36,20 +35,6 @@ public class Table : Entity
                 .ToList(),
             CreatedAt = DateTimeOffset.UtcNow
         };
-    }
-
-    public void AddChipType(ChipType chipType, int value)
-    {
-        var tableChip = new TableChip
-        {
-            TableId = Id,
-            Table = this,
-            TypeId = chipType.Id,
-            Type = chipType,
-            Value = value
-        };
-
-        Chips.Add(tableChip);
     }
 }
 
