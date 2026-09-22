@@ -33,4 +33,6 @@ app.MapDefaultEndpoints();
 app.MapAuthEndpoints();
 app.MapTablesEndpoints();
 
+app.MapHub<TableHub>("/hubs/table");
+
 app.Run();
