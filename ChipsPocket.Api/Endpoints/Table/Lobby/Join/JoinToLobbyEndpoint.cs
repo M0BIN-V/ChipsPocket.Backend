@@ -3,13 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ChipsPocket.Api.Endpoints.Table.Lobby.Join;
 
+public record JoinResponse(Guid TableId);
+
 public class JoinToLobbyEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
         group.MapPost("join/{token}", async Task<Results<
                 UnauthorizedHttpResult,
-                Ok,
+                Ok<JoinResponse>,
                 Conflict,
                 NotFound<string>>> (
                 [FromRoute] string token,
@@ -45,7 +47,7 @@ public class JoinToLobbyEndpoint : IEndpoint
 
                 await db.SaveChangesAsync();
 
-                return TypedResults.Ok();
+                return TypedResults.Ok(new JoinResponse(tableId));
             })
             .WithSummary("Join a table lobby")
             .WithDescription("""
@@ -55,7 +57,7 @@ public class JoinToLobbyEndpoint : IEndpoint
                              is created.
 
                              The join token must be valid and correspond to an existing table.
-                             
+
                              Only 10 users can be joined
                              """)
             .RequireAuthorization();

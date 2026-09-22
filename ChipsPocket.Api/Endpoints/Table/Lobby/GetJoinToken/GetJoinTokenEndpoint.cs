@@ -9,7 +9,7 @@ public class GetJoinTokenEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
-        group.MapGet("join-token", async Task<Results<
+        group.MapGet("{tableId:guid}/join-token", async Task<Results<
                 Ok<GetJoinTokenResponse>,
                 NotFound<string>>> (
                 [FromRoute] Guid tableId,
@@ -18,7 +18,7 @@ public class GetJoinTokenEndpoint : IEndpoint
                 [FromServices] ICurrentUser currentUser) =>
             {
                 var exists = await db.Tables
-                    .AnyAsync(t => t.Id == tableId && t.CreatedById == currentUser.Id);
+                    .AnyAsync(t => t.Id == tableId && t.Lobby.LobbyUsers.Any(u => u.UserId == currentUser.Id));
 
                 if (!exists) return TypedResults.NotFound("table not found");
 
@@ -30,8 +30,6 @@ public class GetJoinTokenEndpoint : IEndpoint
             .WithDescription("""
                              Generates a short-lived token that can be shared with other users
                              to join the table's lobby.
-
-                             Only the table owner can generate a join token.
                              """)
             .RequireAuthorization();
     }

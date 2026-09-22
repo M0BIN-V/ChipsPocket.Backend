@@ -10,7 +10,7 @@ public static class LobbyEndpointGroup
         public IEndpointRouteBuilder MapLobbyEndpoints()
         {
             var group = endpoints
-                .MapGroup("{tableId:guid}/lobby")
+                .MapGroup("lobby")
                 .WithTags("Tables")
                 .WithDescription("""
                                  Endpoints for managing and joining a table lobby.
