@@ -1,4 +1,5 @@
 ﻿using ChipsPocket.Api.Endpoints.Table.CreateTable;
+using ChipsPocket.Api.Endpoints.Table.GetTableInfo;
 
 namespace ChipsPocket.Api.Endpoints.Table;
 
@@ -13,6 +14,7 @@ public static class TablesEndpointGroup
                 .WithTags("Tables");
 
             CreateTableEndpoint.Map(group);
+            GetTableInfoEndpoint.Map(group);
 
             return endpoints;
         }

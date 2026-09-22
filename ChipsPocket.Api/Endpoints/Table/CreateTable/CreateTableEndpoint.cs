@@ -23,6 +23,13 @@ public class CreateTableEndpoint : IEndpoint
 
                 var table = Data.Entities.Table.Create(request.TableName, currentUser.Id);
 
+                var lobby = table.Lobby;
+
+                lobby.LobbyUsers.Add(new LobbyUser
+                {
+                    UserId = userId,
+                    LobbyId = lobby.Id
+                });
 
                 await db.Tables.AddAsync(table);
                 await db.SaveChangesAsync();

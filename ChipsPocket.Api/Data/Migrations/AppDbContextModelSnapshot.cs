@@ -81,6 +81,22 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.ToTable("CollectionChip");
                 });
 
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.LobbyUser", b =>
+                {
+                    b.Property<Guid>("LobbyId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("LobbyId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("LobbyUser");
+                });
+
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.Seat", b =>
                 {
                     b.Property<Guid>("Id")
@@ -123,6 +139,9 @@ namespace ChipsPocket.Api.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("LobbyId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -133,6 +152,23 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.HasIndex(new[] { "CreatedById", "Name" }, "IX_Tables_CreatedById_Name");
 
                     b.ToTable("Tables");
+                });
+
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.TableLobby", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TableId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TableId")
+                        .IsUnique();
+
+                    b.ToTable("TableLobby");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.User", b =>
@@ -381,6 +417,25 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.Navigation("ChipCollection");
                 });
 
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.LobbyUser", b =>
+                {
+                    b.HasOne("ChipsPocket.Api.Data.Entities.TableLobby", "Lobby")
+                        .WithMany("LobbyUsers")
+                        .HasForeignKey("LobbyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ChipsPocket.Api.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Lobby");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.Seat", b =>
                 {
                     b.HasOne("ChipsPocket.Api.Data.Entities.Table", "Table")
@@ -407,6 +462,17 @@ namespace ChipsPocket.Api.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.TableLobby", b =>
+                {
+                    b.HasOne("ChipsPocket.Api.Data.Entities.Table", "Table")
+                        .WithOne("Lobby")
+                        .HasForeignKey("ChipsPocket.Api.Data.Entities.TableLobby", "TableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Table");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.UserStack", b =>
@@ -486,7 +552,15 @@ namespace ChipsPocket.Api.Data.Migrations
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.Table", b =>
                 {
+                    b.Navigation("Lobby")
+                        .IsRequired();
+
                     b.Navigation("Seats");
+                });
+
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.TableLobby", b =>
+                {
+                    b.Navigation("LobbyUsers");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.UserStack", b =>

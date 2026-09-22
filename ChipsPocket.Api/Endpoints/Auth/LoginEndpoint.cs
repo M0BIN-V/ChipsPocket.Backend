@@ -8,7 +8,16 @@ public static class LoginEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
-        group.MapPost("/login", Handle);
+        group.MapPost("/login", Handle)
+            .WithSummary("Log in")
+            .WithDescription("""
+                             Authenticates a user using their username and password.
+
+                             If the credentials are valid, a JWT access token is returned.
+                             The same unauthorized response is returned when the username does not exist
+                             or the password is incorrect.
+                             """)
+            .WithTags("Authentication");
     }
 
     private static async Task<Results<Ok<AuthResponse>, UnauthorizedHttpResult>>

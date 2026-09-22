@@ -17,6 +17,9 @@ public class Table : Entity
 
     public DateTimeOffset CreatedAt { get; private set; }
 
+    public TableLobby Lobby { get; set; }
+    public Guid LobbyId { get; set; }
+
     public static Table Create(string name, string creatorId)
     {
         var id = Guid.CreateVersion7();
@@ -33,7 +36,11 @@ public class Table : Entity
                     Order = order
                 })
                 .ToList(),
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            Lobby = new TableLobby
+            {
+                TableId = id
+            }
         };
     }
 }
@@ -59,5 +66,9 @@ public class TableConfig : IEntityTypeConfiguration<Table>
 
         builder.Property(x => x.CreatedById)
             .HasMaxLength(255);
+
+        builder.HasOne(t => t.Lobby)
+            .WithOne(l => l.Table)
+            .HasForeignKey<TableLobby>(l => l.TableId);
     }
 }
