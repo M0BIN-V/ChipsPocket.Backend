@@ -7,9 +7,10 @@ public class JoinToLobbyEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
-        group.MapGet("join/{token}", async Task<Results<
+        group.MapPost("join/{token}", async Task<Results<
                 UnauthorizedHttpResult,
                 Ok,
+                Conflict,
                 NotFound<string>>> (
                 [FromRoute] string token,
                 [FromServices] ITableJoinTokenService tokenService,
@@ -32,6 +33,9 @@ public class JoinToLobbyEndpoint : IEndpoint
 
                 var lobby = table.Lobby;
 
+                if (lobby.LobbyUsers.Count == 10)
+                    return TypedResults.Conflict();
+
                 if (lobby.LobbyUsers.All(u => u.UserId != user.Id))
                     lobby.LobbyUsers.Add(new LobbyUser
                     {
@@ -51,6 +55,8 @@ public class JoinToLobbyEndpoint : IEndpoint
                              is created.
 
                              The join token must be valid and correspond to an existing table.
+                             
+                             Only 10 users can be joined
                              """)
             .RequireAuthorization();
     }

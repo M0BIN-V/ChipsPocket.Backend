@@ -7,7 +7,7 @@ public static class LobbyEndpointGroup
 {
     extension(IEndpointRouteBuilder endpoints)
     {
-        public IEndpointRouteBuilder MapTablesEndpoints()
+        public IEndpointRouteBuilder MapLobbyEndpoints()
         {
             var group = endpoints
                 .MapGroup("{tableId:guid}/lobby")

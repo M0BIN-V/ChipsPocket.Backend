@@ -12,6 +12,13 @@ public static class MeEndpoint
     public static void Map(IEndpointRouteBuilder group)
     {
         group.MapGet("/me", Handle)
+            .WithSummary("Get current user")
+            .WithDescription("""
+                             Returns the profile information of the currently authenticated user.
+
+                             The user is identified using the NameIdentifier claim from the
+                             authenticated user's access token.
+                             """)
             .RequireAuthorization();
     }
 
