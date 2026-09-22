@@ -2,9 +2,8 @@
 
 namespace ChipsPocket.Api.Data.Entities;
 
-public class Seat
+public class Seat : Entity
 {
-    public Guid Id { get; set; }
     public int Order { get; set; }
 
     public User? User { get; set; }
@@ -21,5 +20,10 @@ public class SeatConfig : IEntityTypeConfiguration<Seat>
         builder.HasOne(s => s.User)
             .WithMany()
             .HasForeignKey(s => s.UserId);
+
+        builder.HasIndex(x => new { x.Order, x.TableId }).IsUnique();
+
+        builder.Property(c => c.UserId)
+            .HasMaxLength(300);
     }
 }

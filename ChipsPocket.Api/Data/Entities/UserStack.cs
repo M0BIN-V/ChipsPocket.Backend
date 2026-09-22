@@ -12,7 +12,7 @@ public class UserStack
     public User User { get; set; } = null!;
     public required string UserId { get; set; }
 
-    public List<ChipCollection> ChipCollections { get; set; } = [];
+    public List<TableChipCollection> ChipCollections { get; set; } = [];
 }
 
 public class UserStackConfig : IEntityTypeConfiguration<UserStack>
@@ -26,5 +26,14 @@ public class UserStackConfig : IEntityTypeConfiguration<UserStack>
         builder.HasOne(x => x.User)
             .WithMany()
             .HasForeignKey(x => x.UserId);
+
+        builder.HasMany(c => c.ChipCollections)
+            .WithOne(c => c.UserStack)
+            .HasForeignKey(c => c.UserStackId);
+
+        builder.HasIndex(x => new { x.UserId, x.TableId }).IsUnique();
+
+        builder.Property(c => c.UserId)
+            .HasMaxLength(300);
     }
 }

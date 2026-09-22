@@ -21,6 +21,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
     await app.ApplyMigrationsAsync();
+    await app.SeedDataAsync();
 }
 
 app.UseCors("Web");
