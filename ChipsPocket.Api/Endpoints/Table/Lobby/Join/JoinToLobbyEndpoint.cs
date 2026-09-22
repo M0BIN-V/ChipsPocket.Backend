@@ -39,8 +39,19 @@ public class JoinToLobbyEndpoint : IEndpoint
                         LobbyId = lobby.Id
                     });
 
+                await db.SaveChangesAsync();
+
                 return TypedResults.Ok();
             })
+            .WithSummary("Join a table lobby")
+            .WithDescription("""
+                             Adds the authenticated user to a table's lobby using a join token.
+
+                             If the user is already a member of the lobby, no duplicate membership
+                             is created.
+
+                             The join token must be valid and correspond to an existing table.
+                             """)
             .RequireAuthorization();
     }
 }

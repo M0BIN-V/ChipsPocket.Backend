@@ -37,6 +37,15 @@ public class CreateTableEndpoint : IEndpoint
                 return TypedResults.Created($"/api/tables/{table.Id}",
                     new CreateTableResponse(table.Id));
             })
+            .WithSummary("Create a poker table")
+            .WithDescription("""
+                             Creates a new poker table for the authenticated user.
+
+                             The authenticated user becomes the owner of the table and is
+                             automatically added to the table's lobby.
+
+                             A user cannot create multiple tables with the same name.
+                             """)
             .Vaidate<CreateTableRequest>()
             .RequireAuthorization();
     }

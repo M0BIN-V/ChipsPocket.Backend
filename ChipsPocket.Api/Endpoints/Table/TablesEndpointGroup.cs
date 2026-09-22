@@ -11,7 +11,8 @@ public static class TablesEndpointGroup
         {
             var group = endpoints
                 .MapGroup("/api/tables")
-                .WithTags("Tables");
+                .WithTags("Tables")
+                .WithDescription("Endpoints for creating and managing poker tables.");
 
             CreateTableEndpoint.Map(group);
             GetTableInfoEndpoint.Map(group);

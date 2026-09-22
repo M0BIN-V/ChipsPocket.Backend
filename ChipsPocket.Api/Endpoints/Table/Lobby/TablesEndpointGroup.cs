@@ -11,7 +11,13 @@ public static class LobbyEndpointGroup
         {
             var group = endpoints
                 .MapGroup("{tableId:guid}/lobby")
-                .WithTags("Tables");
+                .WithTags("Tables")
+                .WithDescription("""
+                                 Endpoints for managing and joining a table lobby.
+
+                                 A lobby represents the waiting area for users who want to
+                                 participate in a poker table.
+                                 """);
 
             GetJoinTokenEndpoint.Map(group);
             JoinToLobbyEndpoint.Map(group);
