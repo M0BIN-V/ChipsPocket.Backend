@@ -17,6 +17,8 @@ public class Table : Entity
 
     public DateTimeOffset CreatedAt { get; private set; }
 
+    public TableStatus Status { get; private set; }
+
     public TableLobby Lobby { get; set; }
     public Guid LobbyId { get; set; }
 
@@ -26,6 +28,7 @@ public class Table : Entity
 
         return new Table
         {
+            Status = TableStatus.Pending,
             Id = id,
             CreatedById = creatorId,
             Name = name,
@@ -70,5 +73,8 @@ public class TableConfig : IEntityTypeConfiguration<Table>
         builder.HasOne(t => t.Lobby)
             .WithOne(l => l.Table)
             .HasForeignKey<TableLobby>(l => l.TableId);
+
+        builder.Property(t => t.Status)
+            .HasConversion<string>();
     }
 }

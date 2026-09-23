@@ -147,6 +147,10 @@ namespace ChipsPocket.Api.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "CreatedById", "Name" }, "IX_Tables_CreatedById_Name");

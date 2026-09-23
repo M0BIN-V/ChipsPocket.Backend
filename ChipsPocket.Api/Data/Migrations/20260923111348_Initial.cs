@@ -178,6 +178,7 @@ namespace ChipsPocket.Api.Data.Migrations
                     CreatedById = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    Status = table.Column<string>(type: "TEXT", nullable: false),
                     LobbyId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
