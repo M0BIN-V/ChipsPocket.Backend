@@ -9,6 +9,8 @@ public class Table : Entity
     {
     }
 
+    public List<ChipTransaction> Transactions { get; private set; } = [];
+
     public User CreatedBy { get; private set; } = null!;
     public string CreatedById { get; private set; } = null!;
 
@@ -19,7 +21,7 @@ public class Table : Entity
 
     public TableStatus Status { get; private set; }
 
-    public TableLobby Lobby { get; set; }
+    public TableLobby Lobby { get; set; } = null!;
     public Guid LobbyId { get; set; }
 
     public static Table Create(string name, string creatorId)

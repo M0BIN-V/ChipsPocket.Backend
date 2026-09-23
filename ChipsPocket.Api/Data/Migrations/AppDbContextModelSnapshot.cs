@@ -41,44 +41,40 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.ToTable("Chips");
                 });
 
-            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.ChipCollection", b =>
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.ChipTransaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("UserStackId")
+                    b.Property<Guid?>("FromPotId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FromUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TableId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ToPotId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ToUserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserStackId");
+                    b.HasIndex("FromPotId");
 
-                    b.ToTable("ChipCollection");
-                });
+                    b.HasIndex("FromUserId");
 
-            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.CollectionChip", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                    b.HasIndex("TableId");
 
-                    b.Property<Guid>("ChipCollectionId")
-                        .HasColumnType("TEXT");
+                    b.HasIndex("ToPotId");
 
-                    b.Property<Guid>("ChipId")
-                        .HasColumnType("TEXT");
+                    b.HasIndex("ToUserId");
 
-                    b.Property<int>("Order")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChipCollectionId");
-
-                    b.HasIndex("ChipId");
-
-                    b.ToTable("CollectionChip");
+                    b.ToTable("ChipTransaction");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.LobbyUser", b =>
@@ -95,6 +91,22 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("LobbyUser");
+                });
+
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.Pot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TableId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TableId");
+
+                    b.ToTable("Pot");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.Seat", b =>
@@ -175,6 +187,24 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.ToTable("TableLobby");
                 });
 
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.TransactionChip", b =>
+                {
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ChipId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ChipCount")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TransactionId", "ChipId");
+
+                    b.HasIndex("ChipId");
+
+                    b.ToTable("TransactionChip");
+                });
+
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.User", b =>
                 {
                     b.Property<string>("Id")
@@ -237,30 +267,6 @@ namespace ChipsPocket.Api.Data.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.UserStack", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("TableId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TableId");
-
-                    b.HasIndex("UserId", "TableId")
-                        .IsUnique();
-
-                    b.ToTable("UserStack");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -391,34 +397,43 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.ChipCollection", b =>
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.ChipTransaction", b =>
                 {
-                    b.HasOne("ChipsPocket.Api.Data.Entities.UserStack", "UserStack")
-                        .WithMany("ChipCollections")
-                        .HasForeignKey("UserStackId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserStack");
-                });
-
-            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.CollectionChip", b =>
-                {
-                    b.HasOne("ChipsPocket.Api.Data.Entities.ChipCollection", "ChipCollection")
-                        .WithMany("Chips")
-                        .HasForeignKey("ChipCollectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ChipsPocket.Api.Data.Entities.Chip", "Chip")
+                    b.HasOne("ChipsPocket.Api.Data.Entities.Pot", "FromPot")
                         .WithMany()
-                        .HasForeignKey("ChipId")
+                        .HasForeignKey("FromPotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ChipsPocket.Api.Data.Entities.User", "FromUser")
+                        .WithMany()
+                        .HasForeignKey("FromUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ChipsPocket.Api.Data.Entities.Table", "Table")
+                        .WithMany("Transactions")
+                        .HasForeignKey("TableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Chip");
+                    b.HasOne("ChipsPocket.Api.Data.Entities.Pot", "ToPot")
+                        .WithMany()
+                        .HasForeignKey("ToPotId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("ChipCollection");
+                    b.HasOne("ChipsPocket.Api.Data.Entities.User", "ToUser")
+                        .WithMany()
+                        .HasForeignKey("ToUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("FromPot");
+
+                    b.Navigation("FromUser");
+
+                    b.Navigation("Table");
+
+                    b.Navigation("ToPot");
+
+                    b.Navigation("ToUser");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.LobbyUser", b =>
@@ -438,6 +453,17 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.Navigation("Lobby");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.Pot", b =>
+                {
+                    b.HasOne("ChipsPocket.Api.Data.Entities.Table", "Table")
+                        .WithMany()
+                        .HasForeignKey("TableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Table");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.Seat", b =>
@@ -479,23 +505,23 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.Navigation("Table");
                 });
 
-            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.UserStack", b =>
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.TransactionChip", b =>
                 {
-                    b.HasOne("ChipsPocket.Api.Data.Entities.Table", "Table")
+                    b.HasOne("ChipsPocket.Api.Data.Entities.Chip", "Chip")
                         .WithMany()
-                        .HasForeignKey("TableId")
+                        .HasForeignKey("ChipId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ChipsPocket.Api.Data.Entities.ChipTransaction", "Transaction")
+                        .WithMany("Chips")
+                        .HasForeignKey("TransactionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ChipsPocket.Api.Data.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Chip");
 
-                    b.Navigation("Table");
-
-                    b.Navigation("User");
+                    b.Navigation("Transaction");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -549,7 +575,7 @@ namespace ChipsPocket.Api.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.ChipCollection", b =>
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.ChipTransaction", b =>
                 {
                     b.Navigation("Chips");
                 });
@@ -560,16 +586,13 @@ namespace ChipsPocket.Api.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Seats");
+
+                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.TableLobby", b =>
                 {
                     b.Navigation("LobbyUsers");
-                });
-
-            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.UserStack", b =>
-                {
-                    b.Navigation("ChipCollections");
                 });
 #pragma warning restore 612, 618
         }
