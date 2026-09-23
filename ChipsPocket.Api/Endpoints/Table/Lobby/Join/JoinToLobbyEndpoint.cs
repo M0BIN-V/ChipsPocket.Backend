@@ -1,4 +1,5 @@
 ﻿using ChipsPocket.Api.Abstractions.Endpionts;
+using ChipsPocket.Api.Notifications.Table;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChipsPocket.Api.Endpoints.Table.Lobby.Join;
@@ -15,6 +16,7 @@ public class JoinToLobbyEndpoint : IEndpoint
                 Conflict,
                 NotFound<string>>> (
                 [FromRoute] string token,
+                [FromServices] ITableNotificationPublisher publisher,
                 [FromServices] ITableJoinTokenService tokenService,
                 [FromServices] AppDbContext db,
                 [FromServices] ICurrentUser currentUser) =>
@@ -46,6 +48,10 @@ public class JoinToLobbyEndpoint : IEndpoint
                     });
 
                 await db.SaveChangesAsync();
+
+                var notification = new PlayerJoinedToLobbyNotification(user.Id, user.UserName!);
+
+                await publisher.PublishAsync(tableId, notification);
 
                 return TypedResults.Ok(new JoinResponse(tableId));
             })

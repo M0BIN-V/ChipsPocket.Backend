@@ -8,6 +8,6 @@ public class SignalRInstaller : IServiceInstaller
     {
         builder.Services.AddSignalR();
 
-        builder.Services.AddScoped<ITableEventPublisher, SignalRTableEventPublisher>();
+        builder.Services.AddScoped<ITableNotificationPublisher, SignalRTableNotificationPublisher>();
     }
 }

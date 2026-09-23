@@ -1,4 +1,5 @@
 ﻿using ChipsPocket.Api.Abstractions.Endpionts;
+using ChipsPocket.Api.Notifications.Table;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChipsPocket.Api.Endpoints.Table.ReleaseSeat;
@@ -15,6 +16,7 @@ public class ReleaseSeatEndpoint : IEndpoint
                     Ok>> (
                     [FromRoute] Guid tableId,
                     [FromRoute] Guid seatId,
+                    [FromServices] ITableNotificationPublisher publisher,
                     [FromServices] AppDbContext db,
                     [FromServices] ICurrentUser currentUser) =>
                 {
@@ -38,6 +40,8 @@ public class ReleaseSeatEndpoint : IEndpoint
                     seat.UserId = null;
 
                     await db.SaveChangesAsync();
+
+                    await publisher.PublishAsync(tableId, new PlayerReleasedSeatNotification(currentUser.Id, seatId));
 
                     return TypedResults.Ok();
                 })

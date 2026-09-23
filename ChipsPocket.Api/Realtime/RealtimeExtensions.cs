@@ -37,7 +37,6 @@ public static class RealtimeExtensions
     public static RealtimeRegistry RegisterRealtimeEvent<TPayload>(
         this RealtimeRegistry registry,
         Type hubType,
-        string name,
         string? description = null)
     {
         registry.AddEvent<TPayload>(

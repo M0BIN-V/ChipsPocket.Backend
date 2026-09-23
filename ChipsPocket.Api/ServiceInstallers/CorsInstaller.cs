@@ -6,7 +6,6 @@ public class CorsInstaller : IServiceInstaller
 {
     public void Install(IHostApplicationBuilder builder)
     {
-        
         if (builder.Environment.IsDevelopment())
             builder.Services.AddCors(options =>
             {

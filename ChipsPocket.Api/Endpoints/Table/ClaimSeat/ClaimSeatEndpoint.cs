@@ -1,4 +1,5 @@
 ﻿using ChipsPocket.Api.Abstractions.Endpionts;
+using ChipsPocket.Api.Notifications.Table;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChipsPocket.Api.Endpoints.Table.ClaimSeat;
@@ -15,14 +16,18 @@ public class ClaimSeatEndpoint : IEndpoint
                     Ok>> (
                     [FromRoute] Guid tableId,
                     [FromRoute] Guid seatId,
+                    [FromServices] ITableNotificationPublisher publisher,
                     [FromServices] AppDbContext db,
                     [FromServices] ICurrentUser currentUser) =>
                 {
+                    var user = await db.Users.SingleAsync(u => u.Id == currentUser.Id);
+
                     var isLobbyMember = await db.Tables
                         .AnyAsync(t =>
                             t.Id == tableId &&
                             t.Lobby.LobbyUsers.Any(x =>
-                                x.UserId == currentUser.Id));
+                                x.UserId == user.Id));
+
 
                     if (!isLobbyMember) return TypedResults.Forbid();
 
@@ -31,13 +36,13 @@ public class ClaimSeatEndpoint : IEndpoint
 
                     if (newSeat is null) return TypedResults.NotFound();
 
-                    if (newSeat.UserId is not null && newSeat.UserId != currentUser.Id)
+                    if (newSeat.UserId is not null && newSeat.UserId != user.Id)
                         return TypedResults.Conflict("This seat is already occupied.");
 
                     // Find the user's current seat, if any.
                     var currentSeat = await db.Seats.FirstOrDefaultAsync(x =>
                         x.TableId == tableId &&
-                        x.UserId == currentUser.Id);
+                        x.UserId == user.Id);
 
                     // Already sitting on this seat.
                     if (currentSeat?.Id == newSeat.Id) return TypedResults.Ok();
@@ -46,9 +51,12 @@ public class ClaimSeatEndpoint : IEndpoint
                     currentSeat?.UserId = null;
 
                     // Claim the new seat.
-                    newSeat.UserId = currentUser.Id;
+                    newSeat.UserId = user.Id;
 
                     await db.SaveChangesAsync();
+
+                    var notification = new PlayerClaimedSeatNotification(seatId, user.Id, user.UserName!);
+                    await publisher.PublishAsync(tableId, notification);
 
                     return TypedResults.Ok();
                 })
