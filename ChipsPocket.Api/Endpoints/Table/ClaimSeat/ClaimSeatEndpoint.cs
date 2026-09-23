@@ -1,6 +1,4 @@
-﻿using ChipsPocket.Api.Abstractions.Endpionts;
-using ChipsPocket.Api.Notifications.Table;
-using Microsoft.AspNetCore.Mvc;
+﻿using ChipsPocket.Api.Notifications.Table;
 
 namespace ChipsPocket.Api.Endpoints.Table.ClaimSeat;
 

@@ -20,11 +20,19 @@ public class ChipTransaction : Entity
     public Guid? ToPotId { get; private set; }
     public Pot? ToPot { get; private set; }
 
+    public bool FromShop { get; private set; }
+    public bool ToShop { get; private set; }
+
     public List<TransactionChip> Chips { get; } = [];
 
     internal void SetFromUser(string userId)
     {
         FromUserId = userId;
+    }
+
+    internal void SetFromShop(bool fromShop)
+    {
+        FromShop = fromShop;
     }
 
     internal void SetFromPot(Guid potId)
@@ -42,14 +50,19 @@ public class ChipTransaction : Entity
         ToPotId = potId;
     }
 
+    internal void SetToShop(bool tooShop)
+    {
+        ToShop = tooShop;
+    }
+
     internal bool HasSource()
     {
-        return FromUserId is not null || FromPotId is not null;
+        return FromUserId is not null || FromPotId is not null || FromShop;
     }
 
     internal bool HasDestination()
     {
-        return ToUserId is not null || ToPotId is not null;
+        return ToUserId is not null || ToPotId is not null || ToShop;
     }
 
     public int GetValue()
@@ -65,7 +78,7 @@ public class ChipTransactionConfig : IEntityTypeConfiguration<ChipTransaction>
         builder.HasKey(x => x.Id);
 
         builder.HasOne(x => x.Table)
-            .WithMany(t=>t.Transactions)
+            .WithMany(t => t.Transactions)
             .HasForeignKey(x => x.TableId)
             .OnDelete(DeleteBehavior.Cascade);
 

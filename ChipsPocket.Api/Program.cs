@@ -1,9 +1,9 @@
 using ChipsPocket.Api.Endpoints.Auth;
+using ChipsPocket.Api.Endpoints.Chips;
 using ChipsPocket.Api.Endpoints.Table;
 using ChipsPocket.Api.Extensions;
 using ChipsPocket.Api.Realtime;
 using DiServiceInstaller;
-using FluentValidation;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +38,7 @@ app.MapDefaultEndpoints();
 
 app.MapAuthEndpoints();
 app.MapTablesEndpoints();
+app.MapChipsEndpoints();
 
 app.MapRealtimeHub<TableHub>(
     "/hubs/table",

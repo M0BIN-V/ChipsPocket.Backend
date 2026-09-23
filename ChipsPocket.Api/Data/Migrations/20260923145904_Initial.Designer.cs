@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChipsPocket.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260923120635_Initial")]
+    [Migration("20260923145904_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -53,6 +53,9 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.Property<Guid?>("FromPotId")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("FromShop")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("FromUserId")
                         .HasColumnType("TEXT");
 
@@ -61,6 +64,9 @@ namespace ChipsPocket.Api.Data.Migrations
 
                     b.Property<Guid?>("ToPotId")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("ToShop")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ToUserId")
                         .HasColumnType("TEXT");
@@ -77,7 +83,7 @@ namespace ChipsPocket.Api.Data.Migrations
 
                     b.HasIndex("ToUserId");
 
-                    b.ToTable("ChipTransaction");
+                    b.ToTable("ChipTransactions");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.LobbyUser", b =>
@@ -157,6 +163,11 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.Property<Guid>("LobbyId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ManagerId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -167,6 +178,8 @@ namespace ChipsPocket.Api.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ManagerId");
 
                     b.HasIndex(new[] { "CreatedById", "Name" }, "IX_Tables_CreatedById_Name");
 
@@ -494,7 +507,15 @@ namespace ChipsPocket.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ChipsPocket.Api.Data.Entities.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.TableLobby", b =>

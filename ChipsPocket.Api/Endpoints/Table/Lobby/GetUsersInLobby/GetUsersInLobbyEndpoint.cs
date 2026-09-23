@@ -1,7 +1,4 @@
-﻿using ChipsPocket.Api.Abstractions.Endpionts;
-using Microsoft.AspNetCore.Mvc;
-
-namespace ChipsPocket.Api.Endpoints.Table.Lobby.GetUsersInLobby;
+﻿namespace ChipsPocket.Api.Endpoints.Table.Lobby.GetUsersInLobby;
 
 public record LobbyUserDto(string Id, string Username);
 

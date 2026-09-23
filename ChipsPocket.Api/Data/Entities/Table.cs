@@ -14,6 +14,9 @@ public class Table : Entity
     public User CreatedBy { get; private set; } = null!;
     public string CreatedById { get; private set; } = null!;
 
+    public User Manager { get;  set; } = null!;
+    public string ManagerId { get;  set; } = null!;
+
     public required string Name { get; set; }
     public List<Seat> Seats { get; private set; } = [];
 
@@ -71,10 +74,17 @@ public class TableConfig : IEntityTypeConfiguration<Table>
 
         builder.Property(x => x.CreatedById)
             .HasMaxLength(255);
+        
+        builder.Property(x => x.ManagerId)
+            .HasMaxLength(255);
 
         builder.HasOne(t => t.Lobby)
             .WithOne(l => l.Table)
             .HasForeignKey<TableLobby>(l => l.TableId);
+
+        builder.HasOne(t => t.Manager)
+            .WithMany()
+            .HasForeignKey(t => t.ManagerId);
 
         builder.Property(t => t.Status)
             .HasConversion<string>();

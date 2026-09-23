@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-
-namespace ChipsPocket.Api.Endpoints.Table.CreateTable;
+﻿namespace ChipsPocket.Api.Endpoints.Table.CreateTable;
 
 public record CreateTableRequest(string TableName);
 

@@ -128,4 +128,22 @@ public sealed class ChipTransactionBuilder
             throw new InvalidOperationException(
                 "Transaction already has a destination.");
     }
+
+    public ChipTransactionBuilder ToShop()
+    {
+        EnsureDestinationIsEmpty();
+
+        _transaction.SetToShop(true);
+
+        return this;
+    }
+    
+    public ChipTransactionBuilder FromShop()
+    {
+        EnsureSourceIsEmpty();
+
+        _transaction.SetFromShop(true);
+
+        return this;
+    }
 }

@@ -1,8 +1,4 @@
-﻿using ChipsPocket.Api.Abstractions.Endpionts;
-using ChipsPocket.Api.EndpointFilters;
-using Microsoft.AspNetCore.Mvc;
-
-namespace ChipsPocket.Api.Endpoints.Table.CreateTable;
+﻿namespace ChipsPocket.Api.Endpoints.Table.CreateTable;
 
 public class CreateTableEndpoint : IEndpoint
 {
@@ -31,6 +27,8 @@ public class CreateTableEndpoint : IEndpoint
                     LobbyId = lobby.Id
                 });
 
+                table.ManagerId = userId;
+
                 await db.Tables.AddAsync(table);
                 await db.SaveChangesAsync();
 
@@ -46,7 +44,7 @@ public class CreateTableEndpoint : IEndpoint
 
                              A user cannot create multiple tables with the same name.
                              """)
-            .Vaidate<CreateTableRequest>()
+            .Validate<CreateTableRequest>()
             .RequireAuthorization();
     }
 }

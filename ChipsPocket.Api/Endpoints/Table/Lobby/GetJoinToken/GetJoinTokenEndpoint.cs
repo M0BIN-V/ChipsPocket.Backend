@@ -1,7 +1,4 @@
-﻿using ChipsPocket.Api.Abstractions.Endpionts;
-using Microsoft.AspNetCore.Mvc;
-
-namespace ChipsPocket.Api.Endpoints.Table.Lobby.GetJoinToken;
+﻿namespace ChipsPocket.Api.Endpoints.Table.Lobby.GetJoinToken;
 
 public record GetJoinTokenResponse(string Token);
 

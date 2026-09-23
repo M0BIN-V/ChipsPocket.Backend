@@ -1,13 +1,10 @@
-﻿using ChipsPocket.Api.Abstractions.Endpionts;
-using Microsoft.AspNetCore.Mvc;
-
-namespace ChipsPocket.Api.Endpoints.Table.GetTableInfo;
+﻿namespace ChipsPocket.Api.Endpoints.Table.GetTableInfo;
 
 public record ViewUserDto(string Username);
 
 public record ViewSeatDto(Guid Id, int Order, ViewUserDto? User);
 
-public record ViewTableInfoDto(Guid Id, string Name, IEnumerable<ViewSeatDto> Seats);
+public record ViewTableInfoDto(Guid Id, string Name, IEnumerable<ViewSeatDto> Seats, string ManagerId);
 
 public class GetTableInfoEndpoint : IEndpoint
 {
@@ -36,8 +33,8 @@ public class GetTableInfoEndpoint : IEndpoint
                             s.Order,
                             s.User == null
                                 ? null
-                                : new ViewUserDto(s.User.UserName!)
-                        ))
+                                : new ViewUserDto(s.User.UserName!))),
+                        t.ManagerId
                     ))
                     .SingleAsync();
 
@@ -45,12 +42,12 @@ public class GetTableInfoEndpoint : IEndpoint
             })
             .WithSummary("Get table information")
             .WithDescription("""
-                Returns the details of a poker table, including its name and seats.
+                             Returns the details of a poker table, including its name and seats.
 
-                The authenticated user must be a member of the table's lobby.
-                Users who are not members of the lobby are forbidden from accessing
-                the table information.
-                """)
+                             The authenticated user must be a member of the table's lobby.
+                             Users who are not members of the lobby are forbidden from accessing
+                             the table information.
+                             """)
             .RequireAuthorization();
     }
 }

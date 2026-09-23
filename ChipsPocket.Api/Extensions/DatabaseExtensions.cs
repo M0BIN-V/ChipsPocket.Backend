@@ -26,79 +26,79 @@ public static class DatabaseExtensions
             new()
             {
                 Name = "White",
-                Picture = "white-chip.png",
+                Picture = "white-chip",
                 Value = 1
             },
             new()
             {
                 Name = "Yellow",
-                Picture = "yellow-chip.png",
+                Picture = "yellow-chip",
                 Value = 2
             },
             new()
             {
                 Name = "Red",
-                Picture = "red-chip.png",
+                Picture = "red-chip",
                 Value = 5
             },
             new()
             {
                 Name = "Blue",
-                Picture = "blue-chip.png",
+                Picture = "blue-chip",
                 Value = 10
             },
             new()
             {
                 Name = "Grey",
-                Picture = "grey-chip.png",
+                Picture = "grey-chip",
                 Value = 20
             },
             new()
             {
                 Name = "Green",
-                Picture = "green-chip.png",
+                Picture = "green-chip",
                 Value = 25
             },
             new()
             {
                 Name = "Orange",
-                Picture = "orange-chip.png",
+                Picture = "orange-chip",
                 Value = 50
             },
             new()
             {
                 Name = "Black",
-                Picture = "black-chip.png",
+                Picture = "black-chip",
                 Value = 100
             },
             new()
             {
                 Name = "Pink",
-                Picture = "pink-chip.png",
+                Picture = "pink-chip",
                 Value = 250
             },
             new()
             {
                 Name = "Purple",
-                Picture = "purple-chip.png",
+                Picture = "purple-chip",
                 Value = 500
             },
             new()
             {
                 Name = "Yellow",
-                Picture = "yellow-chip.png",
+                Picture = "yellow-chip",
                 Value = 1000
             },
             new()
             {
                 Name = "Light Blue",
-                Picture = "light-blue-chip.png",
+                Picture = "light-blue-chip",
                 Value = 2000
             },
             new()
             {
                 Name = "Brown",
-                Picture = "brown-chip.png",
+                Picture = "brown-chip",
                 Value = 5000
             }
         ];
