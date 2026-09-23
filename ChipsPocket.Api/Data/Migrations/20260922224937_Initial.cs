@@ -192,7 +192,7 @@ namespace ChipsPocket.Api.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Seat",
+                name: "Seats",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -202,14 +202,14 @@ namespace ChipsPocket.Api.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Seat", x => x.Id);
+                    table.PrimaryKey("PK_Seats", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Seat_AspNetUsers_UserId",
+                        name: "FK_Seats_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Seat_Tables_TableId",
+                        name: "FK_Seats_Tables_TableId",
                         column: x => x.TableId,
                         principalTable: "Tables",
                         principalColumn: "Id",
@@ -385,19 +385,19 @@ namespace ChipsPocket.Api.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Seat_Order_TableId",
-                table: "Seat",
+                name: "IX_Seats_Order_TableId",
+                table: "Seats",
                 columns: new[] { "Order", "TableId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Seat_TableId",
-                table: "Seat",
+                name: "IX_Seats_TableId",
+                table: "Seats",
                 column: "TableId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Seat_UserId",
-                table: "Seat",
+                name: "IX_Seats_UserId",
+                table: "Seats",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -448,7 +448,7 @@ namespace ChipsPocket.Api.Data.Migrations
                 name: "LobbyUser");
 
             migrationBuilder.DropTable(
-                name: "Seat");
+                name: "Seats");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

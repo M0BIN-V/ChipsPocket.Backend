@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChipsPocket.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260922212322_Initial")]
+    [Migration("20260922224937_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -125,7 +125,7 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.HasIndex("Order", "TableId")
                         .IsUnique();
 
-                    b.ToTable("Seat");
+                    b.ToTable("Seats");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.Table", b =>

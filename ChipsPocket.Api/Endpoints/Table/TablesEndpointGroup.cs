@@ -1,6 +1,8 @@
-﻿using ChipsPocket.Api.Endpoints.Table.CreateTable;
+﻿using ChipsPocket.Api.Endpoints.Table.ClaimSeat;
+using ChipsPocket.Api.Endpoints.Table.CreateTable;
 using ChipsPocket.Api.Endpoints.Table.GetTableInfo;
 using ChipsPocket.Api.Endpoints.Table.Lobby;
+using ChipsPocket.Api.Endpoints.Table.ReleaseSeat;
 
 namespace ChipsPocket.Api.Endpoints.Table;
 
@@ -17,6 +19,8 @@ public static class TablesEndpointGroup
 
             CreateTableEndpoint.Map(group);
             GetTableInfoEndpoint.Map(group);
+            ClaimSeatEndpoint.Map(group);
+            ReleaseSeatEndpoint.Map(group);
 
             group.MapLobbyEndpoints();
 

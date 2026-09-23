@@ -122,7 +122,7 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.HasIndex("Order", "TableId")
                         .IsUnique();
 
-                    b.ToTable("Seat");
+                    b.ToTable("Seats");
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.Table", b =>
