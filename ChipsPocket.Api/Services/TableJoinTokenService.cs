@@ -7,7 +7,7 @@ public sealed class TableJoinTokenService(IMemoryCache cache) : ITableJoinTokenS
 {
     private const int TokenLength = 8;
 
-    private const string Alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private const string Alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     private static readonly TimeSpan TokenLifetime = TimeSpan.FromMinutes(5);
 

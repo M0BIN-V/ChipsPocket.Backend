@@ -1,4 +1,5 @@
 ﻿using ChipsPocket.Api.Endpoints.Table.BuyIn;
+using ChipsPocket.Api.Endpoints.Table.CashOut;
 using ChipsPocket.Api.Endpoints.Table.ClaimSeat;
 using ChipsPocket.Api.Endpoints.Table.CreateTable;
 using ChipsPocket.Api.Endpoints.Table.GetMyTables;
@@ -25,6 +26,7 @@ public static class TablesEndpointGroup
             ClaimSeatEndpoint.Map(group);
             ReleaseSeatEndpoint.Map(group);
             BuyInEndpoint.Map(group);
+            CashOutEndpoint.Map(group);
             GetUserStackEndpoint.Map(group);
             GetMyTablesEndpoint.Map(group);
 

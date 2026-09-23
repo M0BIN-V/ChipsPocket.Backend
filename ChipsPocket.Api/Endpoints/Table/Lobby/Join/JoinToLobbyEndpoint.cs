@@ -19,7 +19,7 @@ public class JoinToLobbyEndpoint : IEndpoint
                 [FromServices] AppDbContext db,
                 [FromServices] ICurrentUser currentUser) =>
             {
-                if (!tokenService.TryGetTableId(token, out var tableId))
+                if (!tokenService.TryGetTableId(token.ToUpper(), out var tableId))
                     return TypedResults.NotFound("table not found");
 
                 var user = await db.Users.SingleOrDefaultAsync(u => u.Id == currentUser.Id);
