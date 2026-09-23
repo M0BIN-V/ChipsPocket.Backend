@@ -85,12 +85,6 @@ public static class DatabaseExtensions
             },
             new()
             {
-                Name = "Yellow",
-                Picture = "yellow-chip",
-                Value = 1000
-            },
-            new()
-            {
                 Name = "Light Blue",
                 Picture = "light-blue-chip",
                 Value = 2000

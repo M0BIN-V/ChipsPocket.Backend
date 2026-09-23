@@ -33,7 +33,8 @@ app.Services
 app.UseCors("Web");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 app.MapDefaultEndpoints();
 
 app.MapAuthEndpoints();
