@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChipsPocket.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260924003345_Initial")]
+    [Migration("20260924084204_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -100,7 +100,7 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.Property<Guid>("BigBlindSeatId")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("CurrentStreet")

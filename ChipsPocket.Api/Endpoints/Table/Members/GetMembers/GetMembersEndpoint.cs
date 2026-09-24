@@ -1,14 +1,14 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.Players.GetPlayers;
+﻿namespace ChipsPocket.Api.Endpoints.Table.Members.GetMembers;
 
-public record PlayerDto(string Id, string Username);
+public record MemberDto(string Id, string Username);
 
-public class GetPlayersEndpoint : IEndpoint
+public class GetMembersEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
         group.MapGet("{tableId:guid}", async Task<Results<
                 ForbidHttpResult,
-                Ok<IEnumerable<PlayerDto>>>> (
+                Ok<IEnumerable<MemberDto>>>> (
                 [FromRoute] Guid tableId,
                 [FromServices] AppDbContext db,
                 [FromServices] ICurrentUser currentUser) =>
@@ -23,12 +23,12 @@ public class GetPlayersEndpoint : IEndpoint
                 var users = await db.Tables
                     .Where(t => t.Id == tableId)
                     .SelectMany(t => t.Members)
-                    .Select(x => new PlayerDto(
+                    .Select(x => new MemberDto(
                         x.User.Id,
                         x.User.UserName!))
                     .ToListAsync();
 
-                return TypedResults.Ok<IEnumerable<PlayerDto>>(users);
+                return TypedResults.Ok<IEnumerable<MemberDto>>(users);
             })
             .WithSummary("Get table players")
             .WithDescription("""

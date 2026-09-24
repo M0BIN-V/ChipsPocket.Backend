@@ -254,7 +254,7 @@ namespace ChipsPocket.Api.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     TableId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false),
                     CurrentStreet = table.Column<int>(type: "INTEGER", nullable: false),
                     BigBlindSeatId = table.Column<Guid>(type: "TEXT", nullable: false),
                     SmallBlindSeatId = table.Column<Guid>(type: "TEXT", nullable: false),

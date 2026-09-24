@@ -12,8 +12,7 @@ public class GetMyTablesEndpoint : IEndpoint
                 var userId = currentUser.Id;
 
                 var tables = await db.Tables
-                    .Where(t => t.Members
-                        .Any(p => p.UserId == userId))
+                    .Where(t => t.Members.Any(p => p.UserId == userId))
                     .Select(t => new GetMyTablesResponse(
                         t.Id,
                         t.Name,
@@ -29,9 +28,9 @@ public class GetMyTablesEndpoint : IEndpoint
             .WithDescription(
                 """
                 Returns a list of poker tables where the currently authenticated user
-                is a member of the table's lobby.
+                is a member of the table.
 
-                Only tables associated with the current user's lobby memberships are returned.
+                Only tables associated with the current user's memberships are returned.
                 """)
             .RequireAuthorization();
     }

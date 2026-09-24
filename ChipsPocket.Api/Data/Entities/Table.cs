@@ -33,6 +33,7 @@ public class Table : Entity
 
         return new Table
         {
+            Members = [],
             SmallBlindAmount = smallBlind,
             BigBlindAmount = bigBlind,
             Id = id,

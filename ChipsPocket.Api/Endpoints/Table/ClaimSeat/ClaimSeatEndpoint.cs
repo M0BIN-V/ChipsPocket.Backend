@@ -20,14 +20,14 @@ public class ClaimSeatEndpoint : IEndpoint
                 {
                     var user = await db.Users.SingleAsync(u => u.Id == currentUser.Id);
 
-                    var isLobbyMember = await db.Tables
+                    var isMember = await db.Tables
                         .AnyAsync(t =>
                             t.Id == tableId &&
                             t.Members.Any(x =>
                                 x.UserId == user.Id));
 
 
-                    if (!isLobbyMember) return TypedResults.Forbid();
+                    if (!isMember) return TypedResults.Forbid();
 
                     var newSeat = await db.Seats
                         .FirstOrDefaultAsync(x => x.Id == seatId && x.TableId == tableId);
@@ -53,7 +53,7 @@ public class ClaimSeatEndpoint : IEndpoint
 
                     await db.SaveChangesAsync();
 
-                    var notification = new PlayerClaimedSeatNotification(seatId, user.Id, user.UserName!);
+                    var notification = new MemberClaimedSeatNotification(seatId, user.Id, user.UserName!);
                     await publisher.PublishAsync(tableId, notification);
 
                     return TypedResults.Ok();
@@ -62,7 +62,7 @@ public class ClaimSeatEndpoint : IEndpoint
             .WithDescription("""
                              Claims a seat at a poker table for the authenticated user.
 
-                             The user must be a member of the table's lobby.
+                             The user must be a member of the table.
 
                              If the user is already sitting at another seat at the same
                              table, their previous seat is released and the requested

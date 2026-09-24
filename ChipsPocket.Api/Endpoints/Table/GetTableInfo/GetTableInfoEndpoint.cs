@@ -4,7 +4,12 @@ public record ViewUserDto(string Username);
 
 public record ViewSeatDto(Guid Id, int Order, ViewUserDto? User);
 
-public record ViewTableInfoDto(Guid Id, string Name, IEnumerable<ViewSeatDto> Seats, string ManagerId);
+public record ViewTableInfoDto(
+    Guid Id,
+    string Name,
+    IEnumerable<ViewSeatDto> Seats,
+    string ManagerId,
+    bool IsRunning);
 
 public class GetTableInfoEndpoint : IEndpoint
 {
@@ -34,7 +39,8 @@ public class GetTableInfoEndpoint : IEndpoint
                             s.User == null
                                 ? null
                                 : new ViewUserDto(s.User.UserName!))),
-                        t.ManagerId
+                        t.ManagerId,
+                        t.Hands.Any(h => h.CurrentStreet != Street.Finished)
                     ))
                     .SingleAsync();
 
@@ -44,8 +50,8 @@ public class GetTableInfoEndpoint : IEndpoint
             .WithDescription("""
                              Returns the details of a poker table, including its name and seats.
 
-                             The authenticated user must be a member of the table's lobby.
-                             Users who are not members of the lobby are forbidden from accessing
+                             The authenticated user must be a member of the table.
+                             Users who are not members of the table are forbidden from accessing
                              the table information.
                              """)
             .RequireAuthorization();

@@ -20,11 +20,15 @@ public class ReleaseSeatEndpoint : IEndpoint
                     [FromServices] AppDbContext db,
                     [FromServices] ICurrentUser currentUser) =>
                 {
-                    var isLobbyMember = await db.Tables
+                    var isMember = await db.Tables
                         .AnyAsync(t => t.Id == tableId && t.Members
                             .Any(x => x.UserId == currentUser.Id));
 
-                    if (!isLobbyMember) return TypedResults.Forbid();
+                    if (!isMember) return TypedResults.Forbid();
+                    
+                    var tableHasActiveHand = await db.Tables.AnyAsync(t =>
+                        t.Id == tableId && t.Hands.Any(h => h.CurrentStreet != Street.Finished));
+                    if (tableHasActiveHand) return TypedResults.Forbid();
 
                     var seat = await db.Seats
                         .FirstOrDefaultAsync(x => x.Id == seatId && x.TableId == tableId);
@@ -41,7 +45,7 @@ public class ReleaseSeatEndpoint : IEndpoint
 
                     await db.SaveChangesAsync();
 
-                    await publisher.PublishAsync(tableId, new PlayerReleasedSeatNotification(currentUser.Id, seatId));
+                    await publisher.PublishAsync(tableId, new MemberReleasedSeatNotification(currentUser.Id, seatId));
 
                     return TypedResults.Ok();
                 })

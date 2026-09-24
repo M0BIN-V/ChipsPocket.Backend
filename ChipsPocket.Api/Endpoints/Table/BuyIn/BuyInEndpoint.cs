@@ -35,11 +35,11 @@ public class BuyInEndpoint : IEndpoint
 
                 if (!userIsTableManager) return TypedResults.Forbid();
 
-                var destinationUserIsInLobby = await db.Tables
+                var destinationUserIsTableMember = await db.Tables
                     .AnyAsync(t => t.Id == tableId && t.Members
                         .Any(u => u.UserId == request.DestinationUserId));
 
-                if (!destinationUserIsInLobby) return TypedResults.NotFound("destination user not found");
+                if (!destinationUserIsTableMember) return TypedResults.NotFound("destination user not found");
 
                 if (!await db.Chips.AnyAsync(c => c.Id == request.ChipId))
                     return TypedResults.NotFound("chip not found");
@@ -58,10 +58,10 @@ public class BuyInEndpoint : IEndpoint
             .WithSummary("Create a buy-in transaction")
             .WithDescription("""
                              Creates a buy-in transaction that transfers chips from the table shop
-                             to a user in the table lobby.
+                             to a user in the table players.
 
                              Only the table manager can perform a buy-in.
-                             The destination user must currently be a member of the table lobby.
+                             The destination user must currently be a member of the table.
                              The specified chip must exist.
                              """)
             .Validate<BuyInRequest>()

@@ -18,6 +18,7 @@ public class GetChipsEndpoint : IEndpoint
 
                 return TypedResults.Ok(chips);
             })
+            .WithSummary("Get chips")
             .RequireAuthorization();
     }
 }

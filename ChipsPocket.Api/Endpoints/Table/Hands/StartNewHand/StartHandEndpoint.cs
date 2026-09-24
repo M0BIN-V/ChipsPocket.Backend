@@ -1,5 +1,11 @@
 ﻿namespace ChipsPocket.Api.Endpoints.Table.Hands.StartNewHand;
 
+public record ViewCreateHandDto(
+    Guid HandId,
+    Guid DealerSeatId,
+    Guid BigBlindSeatId,
+    Guid SmallBlindSeatId);
+
 public class StartHandEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
@@ -8,13 +14,17 @@ public class StartHandEndpoint : IEndpoint
             NotFound<string>,
             ForbidHttpResult,
             BadRequest<string>,
-            Ok<string>>> (
+            Ok<ViewCreateHandDto>>> (
             [FromRoute] Guid tableId,
+            [FromServices] ILogger<StartHandEndpoint> logger,
             [FromServices] IUserStackService userStackService,
             [FromServices] ICurrentUser currentUser,
             [FromServices] AppDbContext db) =>
         {
-            var table = await db.Tables.Where(t => t.Id == tableId)
+            logger.LogInformation("Starting hand for table {tableId}", tableId);
+
+            var table = await db.Tables
+                .Where(t => t.Id == tableId)
                 .Select(t => new
                 {
                     t.SmallBlindAmount,
@@ -22,7 +32,7 @@ public class StartHandEndpoint : IEndpoint
                     t.ManagerId,
                     HasActiveHand = t.Hands.Any(h => h.CurrentStreet != Street.Finished),
                     LastHand = t.Hands
-                        .OrderByDescending(h => h.CreatedAt)
+                        .OrderByDescending(h => h.CreatedAtUtc)
                         .Select(h => new
                         {
                             DealerOrder = h.DealerSeat.Order
@@ -37,9 +47,11 @@ public class StartHandEndpoint : IEndpoint
             if (table.ManagerId != currentUser.Id) return TypedResults.Forbid();
             if (table.HasActiveHand) return TypedResults.BadRequest("Table already has an active hand");
 
+            logger.LogInformation("validating claimed seat count");
+
             if (table.ClaimedSeatCount != table.PlayersCount)
                 return TypedResults.BadRequest(
-                    "Not all players in the lobby have claimed a seat. All players must claim a seat before starting a hand.");
+                    "Not all members have claimed a seat. All members must claim a seat before starting a hand.");
 
             if (table.ClaimedSeatCount < 2)
                 return TypedResults.BadRequest("Not enough players to start a hand. At least 2 players are required.");
@@ -55,23 +67,27 @@ public class StartHandEndpoint : IEndpoint
 
             foreach (var seat in claimedSeats)
             {
+                logger.LogInformation("validating seat {seatId}", seat.Id);
+
                 var requiredAmount = seat == smallBlind
                     ? table.SmallBlindAmount
                     : seat == bigBlind
                         ? table.BigBlindAmount
                         : 1;
 
-                var response = await userStackService.GetAsync(tableId, seat.UserId!);
+                var userStack = await userStackService.GetAsync(tableId, seat.UserId!);
 
-                if (response.TotalValue < requiredAmount)
+                if (userStack.TotalValue < requiredAmount)
                     return TypedResults.BadRequest(
                         $"User {seat.UserId} does not have enough balance to cover the required amount of {requiredAmount}.");
             }
 
+            logger.LogInformation("creating hand");
+
             var hand = new Hand
             {
                 TableId = tableId,
-                CreatedAt = DateTimeOffset.UtcNow,
+                CreatedAtUtc = DateTime.UtcNow,
                 CurrentStreet = Street.Pending,
                 DealerSeatId = dealer.Id,
                 SmallBlindSeatId = smallBlind.Id,
@@ -81,7 +97,15 @@ public class StartHandEndpoint : IEndpoint
             await db.Hands.AddAsync(hand);
             await db.SaveChangesAsync();
 
-            return TypedResults.Ok("Hand started successfully");
+            logger.LogInformation("hand created {handId}", hand.Id);
+
+            var response = new ViewCreateHandDto(
+                hand.Id,
+                hand.DealerSeatId,
+                hand.SmallBlindSeatId,
+                hand.BigBlindSeatId);
+
+            return TypedResults.Ok(response);
         });
     }
 

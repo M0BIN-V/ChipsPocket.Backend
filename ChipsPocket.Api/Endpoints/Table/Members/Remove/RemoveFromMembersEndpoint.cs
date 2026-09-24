@@ -1,11 +1,11 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.Lobby.LeftTable;
+﻿namespace ChipsPocket.Api.Endpoints.Table.Members.Remove;
 
-public class RemoveFromPlayersEndpoint : IEndpoint
+public class RemoveFromMembersEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
         group.MapDelete(
-                "{tableId:guid}/lobby/{removeUserId}",
+                "{tableId:guid}/members/{removeUserId}",
                 async Task<Results<
                     ForbidHttpResult,
                     NotFound<string>,
@@ -29,11 +29,11 @@ public class RemoveFromPlayersEndpoint : IEndpoint
 
                     if (isManager && removingSelf) return TypedResults.Forbid();
 
-                    var lobbyUser = table.Members
+                    var member = table.Members
                         .SingleOrDefault(u => u.UserId == removeUserId);
 
-                    if (lobbyUser is null)
-                        return TypedResults.NotFound("User is not in the lobby");
+                    if (member is null)
+                        return TypedResults.NotFound("User is not in the members");
 
                     var claimedSeat = await db.Seats
                         .SingleOrDefaultAsync(s =>
@@ -43,7 +43,7 @@ public class RemoveFromPlayersEndpoint : IEndpoint
                     if (claimedSeat is not null)
                         claimedSeat.UserId = null;
 
-                    table.Members.Remove(lobbyUser);
+                    table.Members.Remove(member);
 
                     await db.SaveChangesAsync();
 

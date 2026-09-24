@@ -9,6 +9,7 @@ public class CreateTableEndpoint : IEndpoint
                 Conflict,
                 NotFound<string>>> (
                 [FromBody] CreateTableRequest request,
+                [FromServices] ILogger<CreateTableEndpoint> logger,
                 [FromServices] AppDbContext db,
                 [FromServices] ICurrentUser currentUser) =>
             {
@@ -33,6 +34,8 @@ public class CreateTableEndpoint : IEndpoint
 
                 await db.Tables.AddAsync(table);
                 await db.SaveChangesAsync();
+                
+                logger.LogInformation("table created");
 
                 return TypedResults.Created($"/api/tables/{table.Id}",
                     new CreateTableResponse(table.Id));
@@ -42,7 +45,7 @@ public class CreateTableEndpoint : IEndpoint
                              Creates a new poker table for the authenticated user.
 
                              The authenticated user becomes the owner of the table and is
-                             automatically added to the table's lobby.
+                             automatically added to the table's members.
 
                              A user cannot create multiple tables with the same name.
                              """)

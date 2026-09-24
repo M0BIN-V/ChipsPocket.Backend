@@ -97,7 +97,7 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.Property<Guid>("BigBlindSeatId")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("CurrentStreet")

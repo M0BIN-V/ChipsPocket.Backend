@@ -43,13 +43,13 @@ public class CashOutEndpoint : IEndpoint
                 if (!userIsTableManager)
                     return TypedResults.Forbid();
 
-                var sourceUserIsInLobby = await db.Tables
+                var sourceUserIsMember = await db.Tables
                     .AnyAsync(t =>
                         t.Id == tableId &&
                         t.Members
                             .Any(u => u.UserId == request.SourceUserId));
 
-                if (!sourceUserIsInLobby)
+                if (!sourceUserIsMember)
                     return TypedResults.NotFound("source user not found");
 
                 if (!await db.Chips.AnyAsync(c => c.Id == request.ChipId))
@@ -84,7 +84,7 @@ public class CashOutEndpoint : IEndpoint
 
                              Only the table manager can perform a cash-out.
                              The source user must currently be a member of the
-                             table lobby.
+                             table.
                              The specified chip must exist.
                              """)
             .Validate<CashOutRequest>()

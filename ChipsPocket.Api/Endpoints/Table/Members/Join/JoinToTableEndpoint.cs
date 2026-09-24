@@ -44,7 +44,7 @@ public class JoinToTableEndpoint : IEndpoint
 
                 await db.SaveChangesAsync();
 
-                var notification = new PlayerJoinedToTableNotification(user.Id, user.UserName!);
+                var notification = new MemberJoinedToTableNotification(user.Id, user.UserName!);
 
                 await publisher.PublishAsync(tableId, notification);
 

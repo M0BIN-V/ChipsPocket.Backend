@@ -8,7 +8,7 @@ public class Hand : Entity
     public Guid TableId { get; set; }
     public Table Table { get; set; } = null!;
 
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTime CreatedAtUtc { get; set; }
 
     public Street CurrentStreet { get; set; }
 

@@ -26,7 +26,7 @@ public class GetJoinTokenEndpoint : IEndpoint
             .WithSummary("Get table join token")
             .WithDescription("""
                              Generates a short-lived token that can be shared with other users
-                             to join the table's lobby.
+                             to join the table members.
                              """)
             .RequireAuthorization();
     }
