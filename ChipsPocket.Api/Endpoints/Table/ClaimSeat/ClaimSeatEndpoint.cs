@@ -23,7 +23,7 @@ public class ClaimSeatEndpoint : IEndpoint
                     var isLobbyMember = await db.Tables
                         .AnyAsync(t =>
                             t.Id == tableId &&
-                            t.Lobby.LobbyUsers.Any(x =>
+                            t.Members.Any(x =>
                                 x.UserId == user.Id));
 
 

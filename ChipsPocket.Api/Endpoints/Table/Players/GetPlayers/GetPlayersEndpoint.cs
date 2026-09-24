@@ -1,14 +1,14 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.Lobby.GetUsersInLobby;
+﻿namespace ChipsPocket.Api.Endpoints.Table.Players.GetPlayers;
 
-public record LobbyUserDto(string Id, string Username);
+public record PlayerDto(string Id, string Username);
 
-public class GetUsersInLobbyEndpoint : IEndpoint
+public class GetPlayersEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
         group.MapGet("{tableId:guid}", async Task<Results<
                 ForbidHttpResult,
-                Ok<IEnumerable<LobbyUserDto>>>> (
+                Ok<IEnumerable<PlayerDto>>>> (
                 [FromRoute] Guid tableId,
                 [FromServices] AppDbContext db,
                 [FromServices] ICurrentUser currentUser) =>
@@ -16,26 +16,26 @@ public class GetUsersInLobbyEndpoint : IEndpoint
                 var isMember = await db.Tables
                     .AnyAsync(t =>
                         t.Id == tableId &&
-                        t.Lobby.LobbyUsers.Any(u => u.UserId == currentUser.Id));
+                        t.Members.Any(u => u.UserId == currentUser.Id));
 
                 if (!isMember) return TypedResults.Forbid();
 
                 var users = await db.Tables
                     .Where(t => t.Id == tableId)
-                    .SelectMany(t => t.Lobby.LobbyUsers)
-                    .Select(x => new LobbyUserDto(
+                    .SelectMany(t => t.Members)
+                    .Select(x => new PlayerDto(
                         x.User.Id,
                         x.User.UserName!))
                     .ToListAsync();
 
-                return TypedResults.Ok<IEnumerable<LobbyUserDto>>(users);
+                return TypedResults.Ok<IEnumerable<PlayerDto>>(users);
             })
-            .WithSummary("Get lobby users")
+            .WithSummary("Get table players")
             .WithDescription("""
-                             Returns the users currently in the lobby of the specified table.
+                             Returns the users currently in the specified table.
 
-                             Only users who are members of the table's lobby can access
-                             the list of lobby users.
+                             Only users who are members of the table can access
+                             the list of players.
                              """)
             .RequireAuthorization();
     }

@@ -1,4 +1,4 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.Lobby.GetJoinToken;
+﻿namespace ChipsPocket.Api.Endpoints.Table.Players.GetJoinToken;
 
 public record GetJoinTokenResponse(string Token);
 
@@ -15,7 +15,7 @@ public class GetJoinTokenEndpoint : IEndpoint
                 [FromServices] ICurrentUser currentUser) =>
             {
                 var exists = await db.Tables
-                    .AnyAsync(t => t.Id == tableId && t.Lobby.LobbyUsers.Any(u => u.UserId == currentUser.Id));
+                    .AnyAsync(t => t.Id == tableId && t.Members.Any(u => u.UserId == currentUser.Id));
 
                 if (!exists) return TypedResults.NotFound("table not found");
 

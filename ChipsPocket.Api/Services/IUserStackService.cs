@@ -4,7 +4,7 @@ namespace ChipsPocket.Api.Services;
 
 public interface IUserStackService
 {
-    Task<UserStackResponse?> GetAsync(
+    Task<UserStackResponse> GetAsync(
         Guid tableId,
         string userId,
         CancellationToken cancellationToken = default);

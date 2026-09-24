@@ -17,14 +17,16 @@ public class CreateTableEndpoint : IEndpoint
                 if (await db.Tables.AnyAsync(t => t.CreatedById == userId && t.Name == request.TableName))
                     return TypedResults.Conflict();
 
-                var table = Data.Entities.Table.Create(request.TableName, currentUser.Id);
+                var table = Data.Entities.Table.Create(
+                    request.TableName,
+                    currentUser.Id,
+                    request.SmallBlindAmount,
+                    request.BigBlindAmount);
 
-                var lobby = table.Lobby;
-
-                lobby.LobbyUsers.Add(new LobbyUser
+                table.Members.Add(new TableMember
                 {
                     UserId = userId,
-                    LobbyId = lobby.Id
+                    TableId = table.Id
                 });
 
                 table.ManagerId = userId;

@@ -16,8 +16,8 @@ public sealed class TableHub(AppDbContext db) : Hub
         var userId = Context.User!.GetUserId();
 
         var hasAccess = await db.Tables
-            .AnyAsync(t => t.Id == tableId && t.Lobby.LobbyUsers
-                .Any(u => u.UserId == userId));
+            .AnyAsync(t => t.Id == tableId && t.Members
+                .Any(p => p.UserId == userId));
 
         if (!hasAccess) throw new HubException("You cannot access this table.");
 

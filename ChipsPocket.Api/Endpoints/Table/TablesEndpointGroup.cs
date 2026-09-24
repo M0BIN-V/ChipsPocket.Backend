@@ -5,6 +5,7 @@ using ChipsPocket.Api.Endpoints.Table.CreateTable;
 using ChipsPocket.Api.Endpoints.Table.GetMyTables;
 using ChipsPocket.Api.Endpoints.Table.GetTableInfo;
 using ChipsPocket.Api.Endpoints.Table.Lobby;
+using ChipsPocket.Api.Endpoints.Table.Players;
 using ChipsPocket.Api.Endpoints.Table.ReleaseSeat;
 using ChipsPocket.Api.Endpoints.Table.UserStack;
 
@@ -30,7 +31,7 @@ public static class TablesEndpointGroup
             GetUserStackEndpoint.Map(group);
             GetMyTablesEndpoint.Map(group);
 
-            group.MapLobbyEndpoints();
+            group.MapPlayersEndpoints();
 
             return endpoints;
         }

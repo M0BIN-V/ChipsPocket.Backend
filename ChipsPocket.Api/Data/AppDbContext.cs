@@ -4,6 +4,7 @@ namespace ChipsPocket.Api.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User>(options)
 {
+    public DbSet<Hand> Hands { get; init; }
     public DbSet<ChipTransaction> ChipTransactions { get; init; }
     public DbSet<Seat> Seats { get; init; }
     public DbSet<Table> Tables { get; init; }

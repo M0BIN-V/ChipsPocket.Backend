@@ -175,12 +175,12 @@ namespace ChipsPocket.Api.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    BigBlindAmount = table.Column<int>(type: "INTEGER", nullable: false),
+                    SmallBlindAmount = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedById = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
                     ManagerId = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    Status = table.Column<string>(type: "TEXT", nullable: false),
-                    LobbyId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -195,24 +195,6 @@ namespace ChipsPocket.Api.Data.Migrations
                         name: "FK_Tables_AspNetUsers_ManagerId",
                         column: x => x.ManagerId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Pot",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TableId = table.Column<Guid>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Pot", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Pot_Tables_TableId",
-                        column: x => x.TableId,
-                        principalTable: "Tables",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -243,19 +225,84 @@ namespace ChipsPocket.Api.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TableLobby",
+                name: "TableMember",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UserId = table.Column<string>(type: "TEXT", maxLength: 300, nullable: false),
                     TableId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TableLobby", x => x.Id);
+                    table.PrimaryKey("PK_TableMember", x => new { x.TableId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_TableLobby_Tables_TableId",
+                        name: "FK_TableMember_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TableMember_Tables_TableId",
                         column: x => x.TableId,
                         principalTable: "Tables",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Hands",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    TableId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    CurrentStreet = table.Column<int>(type: "INTEGER", nullable: false),
+                    BigBlindSeatId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    SmallBlindSeatId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    DealerSeatId = table.Column<Guid>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Hands", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Hands_Seats_BigBlindSeatId",
+                        column: x => x.BigBlindSeatId,
+                        principalTable: "Seats",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Hands_Seats_DealerSeatId",
+                        column: x => x.DealerSeatId,
+                        principalTable: "Seats",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Hands_Seats_SmallBlindSeatId",
+                        column: x => x.SmallBlindSeatId,
+                        principalTable: "Seats",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Hands_Tables_TableId",
+                        column: x => x.TableId,
+                        principalTable: "Tables",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Pot",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    HandId = table.Column<Guid>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Pot", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Pot_Hands_HandId",
+                        column: x => x.HandId,
+                        principalTable: "Hands",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -265,13 +312,14 @@ namespace ChipsPocket.Api.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TableId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    TableId = table.Column<Guid>(type: "TEXT", nullable: true),
                     FromUserId = table.Column<string>(type: "TEXT", nullable: true),
                     ToUserId = table.Column<string>(type: "TEXT", nullable: true),
                     FromPotId = table.Column<Guid>(type: "TEXT", nullable: true),
                     ToPotId = table.Column<Guid>(type: "TEXT", nullable: true),
                     FromShop = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ToShop = table.Column<bool>(type: "INTEGER", nullable: false)
+                    ToShop = table.Column<bool>(type: "INTEGER", nullable: false),
+                    HandId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -289,6 +337,11 @@ namespace ChipsPocket.Api.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_ChipTransactions_Hands_HandId",
+                        column: x => x.HandId,
+                        principalTable: "Hands",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_ChipTransactions_Pot_FromPotId",
                         column: x => x.FromPotId,
                         principalTable: "Pot",
@@ -304,30 +357,6 @@ namespace ChipsPocket.Api.Data.Migrations
                         name: "FK_ChipTransactions_Tables_TableId",
                         column: x => x.TableId,
                         principalTable: "Tables",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "LobbyUser",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "TEXT", maxLength: 300, nullable: false),
-                    LobbyId = table.Column<Guid>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LobbyUser", x => new { x.LobbyId, x.UserId });
-                    table.ForeignKey(
-                        name: "FK_LobbyUser_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_LobbyUser_TableLobby_LobbyId",
-                        column: x => x.LobbyId,
-                        principalTable: "TableLobby",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -405,6 +434,11 @@ namespace ChipsPocket.Api.Data.Migrations
                 column: "FromUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ChipTransactions_HandId",
+                table: "ChipTransactions",
+                column: "HandId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ChipTransactions_TableId",
                 table: "ChipTransactions",
                 column: "TableId");
@@ -420,14 +454,29 @@ namespace ChipsPocket.Api.Data.Migrations
                 column: "ToUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LobbyUser_UserId",
-                table: "LobbyUser",
-                column: "UserId");
+                name: "IX_Hands_BigBlindSeatId",
+                table: "Hands",
+                column: "BigBlindSeatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Pot_TableId",
-                table: "Pot",
+                name: "IX_Hands_DealerSeatId",
+                table: "Hands",
+                column: "DealerSeatId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Hands_SmallBlindSeatId",
+                table: "Hands",
+                column: "SmallBlindSeatId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Hands_TableId",
+                table: "Hands",
                 column: "TableId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Pot_HandId",
+                table: "Pot",
+                column: "HandId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Seats_Order_TableId",
@@ -446,10 +495,9 @@ namespace ChipsPocket.Api.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TableLobby_TableId",
-                table: "TableLobby",
-                column: "TableId",
-                unique: true);
+                name: "IX_TableMember_UserId",
+                table: "TableMember",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tables_CreatedById_Name",
@@ -486,19 +534,13 @@ namespace ChipsPocket.Api.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "LobbyUser");
-
-            migrationBuilder.DropTable(
-                name: "Seats");
+                name: "TableMember");
 
             migrationBuilder.DropTable(
                 name: "TransactionChip");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "TableLobby");
 
             migrationBuilder.DropTable(
                 name: "ChipTransactions");
@@ -508,6 +550,12 @@ namespace ChipsPocket.Api.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Pot");
+
+            migrationBuilder.DropTable(
+                name: "Hands");
+
+            migrationBuilder.DropTable(
+                name: "Seats");
 
             migrationBuilder.DropTable(
                 name: "Tables");

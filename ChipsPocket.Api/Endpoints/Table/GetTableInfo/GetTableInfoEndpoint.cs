@@ -17,11 +17,11 @@ public class GetTableInfoEndpoint : IEndpoint
                 [FromServices] AppDbContext db,
                 [FromServices] ICurrentUser currentUser) =>
             {
-                var userIsInTableLobby = await db.Tables
-                    .AnyAsync(t => t.Id == tableId && t.Lobby.LobbyUsers
+                var userIsInTablePlayers = await db.Tables
+                    .AnyAsync(t => t.Id == tableId && t.Members
                         .Any(u => u.User.Id == currentUser.Id));
 
-                if (!userIsInTableLobby) return TypedResults.Forbid();
+                if (!userIsInTablePlayers) return TypedResults.Forbid();
 
                 var table = await db.Tables
                     .Where(t => t.Id == tableId)

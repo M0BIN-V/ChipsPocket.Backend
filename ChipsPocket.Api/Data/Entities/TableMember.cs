@@ -2,22 +2,22 @@
 
 namespace ChipsPocket.Api.Data.Entities;
 
-public class LobbyUser
+public class TableMember
 {
     public string UserId { get; set; } = null!;
     public User User { get; set; } = null!;
 
-    public TableLobby Lobby { get; set; } = null!;
-    public Guid LobbyId { get; set; }
+    public Table Table { get; set; } = null!;
+    public Guid TableId { get; set; }
 }
 
-public class LobbyUserConfig : IEntityTypeConfiguration<LobbyUser>
+public class TableMemberUserConfig : IEntityTypeConfiguration<TableMember>
 {
-    public void Configure(EntityTypeBuilder<LobbyUser> builder)
+    public void Configure(EntityTypeBuilder<TableMember> builder)
     {
         builder.HasKey(x => new
         {
-            x.LobbyId,
+            x.TableId,
             x.UserId
         });
 
@@ -29,9 +29,8 @@ public class LobbyUserConfig : IEntityTypeConfiguration<LobbyUser>
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.Lobby)
-            .WithMany(x => x.LobbyUsers)
-            .HasForeignKey(x => x.LobbyId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Table)
+            .WithMany(x => x.Members)
+            .HasForeignKey(x => x.TableId);
     }
 }

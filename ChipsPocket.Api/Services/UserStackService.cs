@@ -2,14 +2,12 @@
 
 public sealed class UserStackService(AppDbContext db) : IUserStackService
 {
-    public async Task<UserStackResponse?> GetAsync(Guid tableId, string userId,
+    public async Task<UserStackResponse> GetAsync(Guid tableId, string userId,
         CancellationToken cancellationToken = default)
     {
-        var tableExists = await db.Tables
-            .AnyAsync(x => x.Id == tableId, cancellationToken);
+        var tableExists = await db.Tables.AnyAsync(x => x.Id == tableId, cancellationToken);
 
-        if (!tableExists)
-            return null;
+        if (!tableExists) throw new InvalidOperationException($"Table with ID {tableId} does not exist.");
 
         var transactions = await db.ChipTransactions
             .Where(t =>

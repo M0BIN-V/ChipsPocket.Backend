@@ -27,6 +27,7 @@
 
     <ItemGroup>
       <Folder Include="Endpoints\Table\GetUserTables\" />
+      <Folder Include="Endpoints\Table\StartRound\" />
     </ItemGroup>
 
 </Project>

@@ -5,8 +5,8 @@ namespace ChipsPocket.Api.Data.Entities;
 
 public class ChipTransaction : Entity
 {
-    public required Guid TableId { get; init; }
-    public Table Table { get; private set; } = null!;
+    public Guid? TableId { get; init; }
+    public Table? Table { get; private set; }
 
     public string? FromUserId { get; private set; }
     public User? FromUser { get; private set; }
@@ -78,7 +78,7 @@ public class ChipTransactionConfig : IEntityTypeConfiguration<ChipTransaction>
         builder.HasKey(x => x.Id);
 
         builder.HasOne(x => x.Table)
-            .WithMany(t => t.Transactions)
+            .WithMany()
             .HasForeignKey(x => x.TableId)
             .OnDelete(DeleteBehavior.Cascade);
 

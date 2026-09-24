@@ -36,7 +36,7 @@ public class BuyInEndpoint : IEndpoint
                 if (!userIsTableManager) return TypedResults.Forbid();
 
                 var destinationUserIsInLobby = await db.Tables
-                    .AnyAsync(t => t.Id == tableId && t.Lobby.LobbyUsers
+                    .AnyAsync(t => t.Id == tableId && t.Members
                         .Any(u => u.UserId == request.DestinationUserId));
 
                 if (!destinationUserIsInLobby) return TypedResults.NotFound("destination user not found");

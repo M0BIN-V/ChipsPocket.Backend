@@ -46,7 +46,7 @@ public class CashOutEndpoint : IEndpoint
                 var sourceUserIsInLobby = await db.Tables
                     .AnyAsync(t =>
                         t.Id == tableId &&
-                        t.Lobby.LobbyUsers
+                        t.Members
                             .Any(u => u.UserId == request.SourceUserId));
 
                 if (!sourceUserIsInLobby)

@@ -11,19 +11,18 @@ public class GetMyTablesEndpoint : IEndpoint
             {
                 var userId = currentUser.Id;
 
-                var lobbies = await db.Set<LobbyUser>()
-                    .AsNoTracking()
-                    .Where(x => x.UserId == userId)
-                    .Select(x => new GetMyTablesResponse(
-                        x.Lobby.TableId,
-                        x.Lobby.Table.Name,
-                        x.Lobby.Table.CreatedAt
-                    ))
-                    .ToListAsync(cancellationToken);
+                var tables = await db.Tables
+                    .Where(t => t.Members
+                        .Any(p => p.UserId == userId))
+                    .Select(t => new GetMyTablesResponse(
+                        t.Id,
+                        t.Name,
+                        t.CreatedAt
+                    )).ToListAsync(cancellationToken);
 
-                lobbies = lobbies.OrderByDescending(t => t.CreatedAt).ToList();
+                tables = tables.OrderByDescending(t => t.CreatedAt).ToList();
 
-                return TypedResults.Ok(lobbies);
+                return TypedResults.Ok(tables);
             })
             .WithName("GetMyTables")
             .WithSummary("Get tables the current user has joined")

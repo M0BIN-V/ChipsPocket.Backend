@@ -8,7 +8,7 @@ public static class TableRealtimeExtensions
     public static void AddTableRealtime(this RealtimeRegistry realtime)
     {
         realtime
-            .RegisterRealtimeEvent<PlayerJoinedToLobbyNotification>(typeof(TableHub),
+            .RegisterRealtimeEvent<PlayerJoinedToTableNotification>(typeof(TableHub),
                 "Sent when a player joins a table lobby")
             .RegisterRealtimeEvent<PlayerClaimedSeatNotification>(typeof(TableHub),
                 "Sent when a player claims a seat.")

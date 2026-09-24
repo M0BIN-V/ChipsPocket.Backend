@@ -1,12 +1,12 @@
 ﻿namespace ChipsPocket.Api.Data.Entities;
 
-public enum TableStatus
+public enum Street
 {
     Pending,
-    Started,
     PreFlop,
     Flop,
     Turn,
     River,
-    Showdown
+    Showdown,
+    Finished,
 }

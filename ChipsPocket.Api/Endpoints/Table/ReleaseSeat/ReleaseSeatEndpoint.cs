@@ -21,7 +21,7 @@ public class ReleaseSeatEndpoint : IEndpoint
                     [FromServices] ICurrentUser currentUser) =>
                 {
                     var isLobbyMember = await db.Tables
-                        .AnyAsync(t => t.Id == tableId && t.Lobby.LobbyUsers
+                        .AnyAsync(t => t.Id == tableId && t.Members
                             .Any(x => x.UserId == currentUser.Id));
 
                     if (!isLobbyMember) return TypedResults.Forbid();
@@ -49,7 +49,7 @@ public class ReleaseSeatEndpoint : IEndpoint
             .WithDescription("""
                              Releases a seat currently occupied by the authenticated user.
 
-                             The user must be a member of the table's lobby and can only
+                             The user must be a member of the table players and can only
                              release a seat that they currently occupy.
 
                              If the seat is already empty, the operation succeeds without
