@@ -30,6 +30,10 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+var test = app.Configuration["Test"];
+
+Console.WriteLine("this is test test test test test "+test);
+
 await app.ApplyMigrationsAsync();
 await app.SeedDataAsync();
 
