@@ -1,4 +1,6 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.Hands.StartNewHand;
+﻿using ChipsPocket.Api.Notifications.Table;
+
+namespace ChipsPocket.Api.Endpoints.Table.Hands.StartNewHand;
 
 public record ViewCreateHandDto(
     Guid HandId,
@@ -16,6 +18,7 @@ public class StartHandEndpoint : IEndpoint
             BadRequest<string>,
             Ok<ViewCreateHandDto>>> (
             [FromRoute] Guid tableId,
+            [FromServices] ITableNotificationPublisher publisher,
             [FromServices] ILogger<StartHandEndpoint> logger,
             [FromServices] IUserStackService userStackService,
             [FromServices] ICurrentUser currentUser,
@@ -86,6 +89,11 @@ public class StartHandEndpoint : IEndpoint
 
             var hand = new Hand
             {
+                WaitingForAction = new WaitingForAction
+                {
+                  Seat = smallBlind,
+                  Type = WaitingForActionType.SmallBlind
+                },
                 TableId = tableId,
                 CreatedAtUtc = DateTime.UtcNow,
                 CurrentStreet = Street.Pending,
@@ -104,6 +112,8 @@ public class StartHandEndpoint : IEndpoint
                 hand.DealerSeatId,
                 hand.SmallBlindSeatId,
                 hand.BigBlindSeatId);
+
+            await publisher.PublishAsync(tableId, new HandStartedNotification(hand.Id));
 
             return TypedResults.Ok(response);
         });

@@ -8,6 +8,9 @@ public class Hand : Entity
     public Guid TableId { get; set; }
     public Table Table { get; set; } = null!;
 
+    public Guid WaitingForActionId { get; set; }
+    public WaitingForAction WaitingForAction { get; set; }
+
     public DateTime CreatedAtUtc { get; set; }
 
     public Street CurrentStreet { get; set; }

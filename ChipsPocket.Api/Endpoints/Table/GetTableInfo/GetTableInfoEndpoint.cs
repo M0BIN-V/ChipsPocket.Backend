@@ -4,12 +4,23 @@ public record ViewUserDto(string Username);
 
 public record ViewSeatDto(Guid Id, int Order, ViewUserDto? User);
 
+public record ViewActiveHandDto(
+    Guid TableId,
+    Guid ArgId,
+    Guid DealerSeatId,
+    Guid SmallBlindSeatId,
+    Guid BigBlindSeatId,
+    Street CurrentStreet,
+    WaitingForActionDto WaitingForActionDto);
+
+public record WaitingForActionDto(Guid SeatId, WaitingForActionType Type);
+
 public record ViewTableInfoDto(
     Guid Id,
     string Name,
     IEnumerable<ViewSeatDto> Seats,
     string ManagerId,
-    bool IsRunning);
+    ViewActiveHandDto? ActiveHand);
 
 public class GetTableInfoEndpoint : IEndpoint
 {
@@ -40,7 +51,19 @@ public class GetTableInfoEndpoint : IEndpoint
                                 ? null
                                 : new ViewUserDto(s.User.UserName!))),
                         t.ManagerId,
-                        t.Hands.Any(h => h.CurrentStreet != Street.Finished)
+                        t.Hands
+                            .Where(h => h.CurrentStreet != Street.Finished)
+                            .Select(h => new ViewActiveHandDto(
+                                tableId,
+                                h.Id,
+                                h.DealerSeatId,
+                                h.SmallBlindSeatId,
+                                h.BigBlindSeatId,
+                                h.CurrentStreet,
+                                new WaitingForActionDto(
+                                    h.WaitingForAction.SeatId,
+                                    h.WaitingForAction.Type)))
+                            .SingleOrDefault()
                     ))
                     .SingleAsync();
 

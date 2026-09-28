@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using ChipsPocket.Api.Endpoints.Auth;
 using ChipsPocket.Api.Endpoints.Chips;
 using ChipsPocket.Api.Endpoints.Table;
@@ -14,6 +15,11 @@ builder.InstallServices(assembly);
 builder.AddServiceDefaults();
 builder.Services.AddValidatorsFromAssembly(assembly);
 builder.Services.AddRealtime();
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 
 var app = builder.Build();

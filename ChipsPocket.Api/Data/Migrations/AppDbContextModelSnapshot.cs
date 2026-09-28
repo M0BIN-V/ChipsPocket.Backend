@@ -112,6 +112,9 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.Property<Guid>("TableId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("WaitingForActionId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BigBlindSeatId");
@@ -304,6 +307,32 @@ namespace ChipsPocket.Api.Data.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.WaitingForAction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("HandId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SeatId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HandId")
+                        .IsUnique();
+
+                    b.HasIndex("SeatId");
+
+                    b.ToTable("WaitingForAction");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -596,6 +625,25 @@ namespace ChipsPocket.Api.Data.Migrations
                     b.Navigation("Transaction");
                 });
 
+            modelBuilder.Entity("ChipsPocket.Api.Data.Entities.WaitingForAction", b =>
+                {
+                    b.HasOne("ChipsPocket.Api.Data.Entities.Hand", "Hand")
+                        .WithOne("WaitingForAction")
+                        .HasForeignKey("ChipsPocket.Api.Data.Entities.WaitingForAction", "HandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ChipsPocket.Api.Data.Entities.Seat", "Seat")
+                        .WithMany()
+                        .HasForeignKey("SeatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hand");
+
+                    b.Navigation("Seat");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -655,6 +703,9 @@ namespace ChipsPocket.Api.Data.Migrations
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.Hand", b =>
                 {
                     b.Navigation("ChipTransactions");
+
+                    b.Navigation("WaitingForAction")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ChipsPocket.Api.Data.Entities.Table", b =>

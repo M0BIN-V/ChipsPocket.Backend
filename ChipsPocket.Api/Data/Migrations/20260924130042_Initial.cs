@@ -254,6 +254,7 @@ namespace ChipsPocket.Api.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     TableId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    WaitingForActionId = table.Column<Guid>(type: "TEXT", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false),
                     CurrentStreet = table.Column<int>(type: "INTEGER", nullable: false),
                     BigBlindSeatId = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -303,6 +304,32 @@ namespace ChipsPocket.Api.Data.Migrations
                         name: "FK_Pot_Hands_HandId",
                         column: x => x.HandId,
                         principalTable: "Hands",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WaitingForAction",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    HandId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    SeatId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Type = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WaitingForAction", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WaitingForAction_Hands_HandId",
+                        column: x => x.HandId,
+                        principalTable: "Hands",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_WaitingForAction_Seats_SeatId",
+                        column: x => x.SeatId,
+                        principalTable: "Seats",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -513,6 +540,17 @@ namespace ChipsPocket.Api.Data.Migrations
                 name: "IX_TransactionChip_ChipId",
                 table: "TransactionChip",
                 column: "ChipId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WaitingForAction_HandId",
+                table: "WaitingForAction",
+                column: "HandId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WaitingForAction_SeatId",
+                table: "WaitingForAction",
+                column: "SeatId");
         }
 
         /// <inheritdoc />
@@ -538,6 +576,9 @@ namespace ChipsPocket.Api.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "TransactionChip");
+
+            migrationBuilder.DropTable(
+                name: "WaitingForAction");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

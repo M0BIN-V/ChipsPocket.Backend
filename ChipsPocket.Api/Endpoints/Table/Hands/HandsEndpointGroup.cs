@@ -14,7 +14,6 @@ public static class HandsEndpointGroup
                 .WithDescription("Endpoints for creating and managing poker hands");
 
             StartHandEndpoint.Map(group);
-
             return endpoints;
         }
     }

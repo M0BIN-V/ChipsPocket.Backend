@@ -30,6 +30,7 @@ public static class TablesEndpointGroup
             CashOutEndpoint.Map(group);
             GetUserStackEndpoint.Map(group);
             GetMyTablesEndpoint.Map(group);
+            
 
             group.MapMembersEndpoints();
             group.MapHandsEndpoints();
