@@ -9,6 +9,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution items", "{0E70F4EE-50AC-4102-B707-0DC13F5443F6}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		liara.json = liara.json
+		.github\workflows\deploy.yaml = .github\workflows\deploy.yaml
 	EndProjectSection
 EndProject
 Global

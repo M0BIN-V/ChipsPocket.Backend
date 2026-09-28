@@ -28,9 +28,10 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
-    await app.ApplyMigrationsAsync();
-    await app.SeedDataAsync();
 }
+
+await app.ApplyMigrationsAsync();
+await app.SeedDataAsync();
 
 app.Services
     .GetRequiredService<RealtimeRegistry>()
