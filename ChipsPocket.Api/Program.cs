@@ -61,16 +61,39 @@ if (!app.Environment.IsDevelopment())
     var staticFilesDirectory = app.Configuration["StaticFilesDirectory"]
                                ?? throw new InvalidOperationException("Static files directory is missing.");
 
-    var staticFiles = Path.Combine(builder.Environment.ContentRootPath, staticFilesDirectory);
+    var staticFiles = Path.Combine(
+        builder.Environment.ContentRootPath,
+        staticFilesDirectory);
 
-    //TMP
-    Console.WriteLine($"Static files path :{staticFiles}");
+    Console.WriteLine($"Static files path: {staticFiles}");
 
-    app.UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(staticFiles) });
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(staticFiles),
+        OnPrepareResponse = context =>
+        {
+            var fileName = Path.GetFileName(context.File.Name);
+
+            if (string.Equals(fileName, "index.html", StringComparison.OrdinalIgnoreCase))
+            {
+                context.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+                context.Context.Response.Headers.Pragma = "no-cache";
+                context.Context.Response.Headers.Expires = "0";
+            }
+            else if (context.File.Name.StartsWith("/assets/", StringComparison.OrdinalIgnoreCase))
+            {
+                context.Context.Response.Headers.CacheControl =
+                    "public,max-age=31536000,immutable";
+            }
+        }
+    });
 
     app.MapFallback(async context =>
     {
-        context.Response.ContentType = "text/html";
+        context.Response.ContentType = "text/html; charset=utf-8";
+        context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+        context.Response.Headers.Pragma = "no-cache";
+        context.Response.Headers.Expires = "0";
 
         await context.Response.SendFileAsync(
             Path.Combine(staticFiles, "index.html"));
