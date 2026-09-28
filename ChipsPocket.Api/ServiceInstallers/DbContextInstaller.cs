@@ -8,15 +8,18 @@ public class DbContextInstaller : IServiceInstaller
     {
         var dbDirectory = builder.Configuration["Db:Directory"] ??
                           throw new InvalidOperationException("Db directory is missing.");
-        
+
         var dbFileName = builder.Configuration["Db:FileName"] ??
                          throw new InvalidOperationException("Db file name is missing.");
 
-        var dataDirectory = Path.Combine(builder.Environment.ContentRootPath, dbDirectory!);
+        var dataDirectory = Path.Combine(builder.Environment.ContentRootPath, dbDirectory);
 
         Directory.CreateDirectory(dataDirectory);
 
-        var databasePath = Path.Combine(dataDirectory, dbFileName!);
+        var databasePath = Path.Combine(dataDirectory, dbFileName);
+
+        //TMP
+        Console.WriteLine($"Database file path :{databasePath}");
 
         builder.Services.AddDbContext<AppDbContext>(options => { options.UseSqlite($"Data Source={databasePath}"); });
     }
