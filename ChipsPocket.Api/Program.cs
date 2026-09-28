@@ -37,8 +37,7 @@ else
     var staticFilesDirectory = app.Configuration["StaticFilesDirectory"]
                                ?? throw new InvalidOperationException("Static files directory is missing.");
 
-    var staticFilesPath = Path.Combine(builder.Environment.ContentRootPath, staticFilesDirectory);
-    app.UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(staticFilesPath) });
+    app.UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(staticFilesDirectory) });
 }
 
 await app.ApplyMigrationsAsync();
