@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var assembly = typeof(Program).Assembly;
 
+builder.Configuration.AddEnvironmentVariables();
 builder.InstallServices(assembly);
 builder.AddServiceDefaults();
 builder.Services.AddValidatorsFromAssembly(assembly);
@@ -32,7 +33,7 @@ if (app.Environment.IsDevelopment())
 
 var test = app.Configuration["Test"];
 
-Console.WriteLine("this is test test test test test "+test);
+Console.WriteLine("this is test test test test test " + test);
 
 await app.ApplyMigrationsAsync();
 await app.SeedDataAsync();
