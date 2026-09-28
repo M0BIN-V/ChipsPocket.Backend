@@ -6,11 +6,19 @@ public class DbContextInstaller : IServiceInstaller
 {
     public void Install(IHostApplicationBuilder builder)
     {
-        var dbDirectory = builder.Configuration["Db:Directory"] ??
-                          throw new InvalidOperationException("Db directory is missing.");
+        var dbDirectory = builder.Configuration["Db:Directory"];
+        var dbFileName = builder.Configuration["Db:FileName"];
 
-        var dbFileName = builder.Configuration["Db:FileName"] ??
-                         throw new InvalidOperationException("Db file name is missing.");
+        Console.WriteLine($"ENV Db__Directory = {Environment.GetEnvironmentVariable("Db__Directory")}");
+        Console.WriteLine($"CONFIG Db:Directory = {dbDirectory}");
+        Console.WriteLine($"ENV Db__FileName = {Environment.GetEnvironmentVariable("Db__FileName")}");
+        Console.WriteLine($"CONFIG Db:FileName = {dbFileName}");
+        
+        // var dbDirectory = builder.Configuration["Db:Directory"] ??
+        //                   throw new InvalidOperationException("Db directory is missing.");
+        //
+        // var dbFileName = builder.Configuration["Db:FileName"] ??
+        //                  throw new InvalidOperationException("Db file name is missing.");
 
         var dataDirectory = Path.Combine(builder.Environment.ContentRootPath, dbDirectory!);
 
