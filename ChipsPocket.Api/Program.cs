@@ -5,6 +5,7 @@ using ChipsPocket.Api.Endpoints.Table;
 using ChipsPocket.Api.Extensions;
 using ChipsPocket.Api.Realtime;
 using DiServiceInstaller;
+using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,9 +27,18 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
-{app.UseCors("Web");
+{
+    app.UseCors("Web");
     app.MapOpenApi();
     app.MapScalarApiReference();
+}
+else
+{
+    var staticFilesDirectory = app.Configuration["StaticFilesDirectory"]
+                               ?? throw new InvalidOperationException("Static files directory is missing.");
+
+    var staticFilesPath = Path.Combine(builder.Environment.ContentRootPath, staticFilesDirectory);
+    app.UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(staticFilesPath) });
 }
 
 await app.ApplyMigrationsAsync();
