@@ -10,7 +10,7 @@
   "disks": [
     {
       "name": "data",
-      "mountTo" : "Database"
+      "mountTo" : "Files"
     }
   ]
 }
