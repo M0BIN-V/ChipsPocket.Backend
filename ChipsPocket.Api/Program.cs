@@ -26,14 +26,10 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
-{
+{app.UseCors("Web");
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
-
-var test = app.Configuration["Test"];
-
-Console.WriteLine("this is test test test test test " + test);
 
 await app.ApplyMigrationsAsync();
 await app.SeedDataAsync();
@@ -42,7 +38,7 @@ app.Services
     .GetRequiredService<RealtimeRegistry>()
     .AddTableRealtime();
 
-app.UseCors("Web");
+
 app.UseAuthentication();
 app.UseAuthorization();
 if (!app.Environment.IsDevelopment())
