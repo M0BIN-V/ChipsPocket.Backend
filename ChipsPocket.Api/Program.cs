@@ -5,7 +5,6 @@ using ChipsPocket.Api.Endpoints.Table;
 using ChipsPocket.Api.Extensions;
 using ChipsPocket.Api.Realtime;
 using DiServiceInstaller;
-using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,8 +43,10 @@ app.Services
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
+
 app.MapDefaultEndpoints();
 
 app.MapAuthEndpoints();
@@ -56,62 +57,6 @@ app.MapRealtimeHub<TableHub>(
     "/hubs/table",
     "Provides realtime communication for poker tables.");
 
-if (!app.Environment.IsDevelopment())
-{
-    var staticFilesDirectory = app.Configuration["StaticFilesDirectory"]
-                               ?? throw new InvalidOperationException("Static files directory is missing.");
-
-    var staticFiles = Path.Combine(builder.Environment.ContentRootPath, staticFilesDirectory);
-
-    //TMP
-    Console.WriteLine($"Static files path :{staticFiles}");
-
-    app.UseStaticFiles(new StaticFileOptions
-    {
-        FileProvider = new PhysicalFileProvider(staticFiles),
-
-        OnPrepareResponse = context =>
-        {
-            var path = context.Context.Request.Path.Value ?? string.Empty;
-
-            if (
-                path.Equals("/index.html", StringComparison.OrdinalIgnoreCase) ||
-                path.Equals("/sw.js", StringComparison.OrdinalIgnoreCase) ||
-                path.Equals("/registerSW.js", StringComparison.OrdinalIgnoreCase) ||
-                path.Equals("/manifest.webmanifest", StringComparison.OrdinalIgnoreCase)
-            )
-            {
-                context.Context.Response.Headers.CacheControl =
-                    "no-cache, no-store, must-revalidate";
-
-                context.Context.Response.Headers.Pragma = "no-cache";
-                context.Context.Response.Headers.Expires = "0";
-
-                return;
-            }
-
-            if (path.StartsWith("/assets/", StringComparison.OrdinalIgnoreCase))
-            {
-                context.Context.Response.Headers.CacheControl =
-                    "public,max-age=31536000,immutable";
-            }
-        }
-    });
-
-    app.MapFallback(async context =>
-    {
-        context.Response.ContentType = "text/html";
-
-        context.Response.Headers.CacheControl =
-            "no-cache, no-store, must-revalidate";
-
-        context.Response.Headers.Pragma = "no-cache";
-        context.Response.Headers.Expires = "0";
-
-        await context.Response.SendFileAsync(
-            Path.Combine(staticFiles, "index.html"));
-    });
-}
-
+app.MapFrontend();
 
 app.Run();
