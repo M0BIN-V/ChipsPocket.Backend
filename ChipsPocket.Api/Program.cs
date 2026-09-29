@@ -53,6 +53,20 @@ app.MapAuthEndpoints();
 app.MapTablesEndpoints();
 app.MapChipsEndpoints();
 
+app.MapGet("/api/version", () =>
+{
+    var version = typeof(Program)
+        .Assembly
+        .GetName()
+        .Version?
+        .ToString(3);
+
+    return new
+    {
+        version
+    };
+});
+
 app.MapRealtimeHub<TableHub>(
     "/hubs/table",
     "Provides realtime communication for poker tables.");
