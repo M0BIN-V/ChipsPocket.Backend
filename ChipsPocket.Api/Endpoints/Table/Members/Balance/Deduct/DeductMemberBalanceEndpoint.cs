@@ -20,9 +20,9 @@ public class DeductMemberBalanceEndpoint : IEndpoint
                 NotFound<string>,
                 BadRequest<string>,
                 Ok>> (
+                [FromBody] DeductMemberBalanceRequest request,
                 [FromRoute] string memberId,
                 [FromRoute] Guid tableId,
-                [FromBody] DeductMemberBalanceRequest request,
                 [FromServices] AppDbContext db,
                 [FromServices] IUserStackService userStackService,
                 [FromServices] ICurrentUser currentUser) =>

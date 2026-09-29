@@ -19,9 +19,9 @@ public class AddBalanceToMemberEndpoint : IEndpoint
                 ForbidHttpResult,
                 NotFound<string>,
                 Ok>> (
+                [FromBody] AddBalanceRequest request,
                 [FromRoute] string memberId,
                 [FromRoute] Guid tableId,
-                [FromBody] AddBalanceRequest request,
                 [FromServices] AppDbContext db,
                 [FromServices] ICurrentUser currentUser) =>
             {
