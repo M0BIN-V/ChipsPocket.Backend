@@ -1,26 +1,26 @@
 ﻿namespace ChipsPocket.Api.Data.Entities;
 
-public sealed class ChipTransactionBuilder
+public sealed class TransactionBuilder
 {
-    private readonly ChipTransaction _transaction;
+    private readonly Transaction _transaction;
 
-    private ChipTransactionBuilder(Guid tableId)
+    private TransactionBuilder(Guid tableId)
     {
-        _transaction = new ChipTransaction
+        _transaction = new Transaction
         {
             TableId = tableId
         };
     }
 
-    public static ChipTransactionBuilder Create(Guid tableId)
+    public static TransactionBuilder Create(Guid tableId)
     {
         if (tableId == Guid.Empty)
             throw new ArgumentException("Table ID cannot be empty.", nameof(tableId));
 
-        return new ChipTransactionBuilder(tableId);
+        return new TransactionBuilder(tableId);
     }
 
-    public ChipTransactionBuilder FromUser(string userId)
+    public TransactionBuilder FromUser(string userId)
     {
         if (string.IsNullOrWhiteSpace(userId))
             throw new ArgumentException("User ID cannot be empty.", nameof(userId));
@@ -32,7 +32,7 @@ public sealed class ChipTransactionBuilder
         return this;
     }
 
-    public ChipTransactionBuilder FromPot(Guid potId)
+    public TransactionBuilder FromPot(Guid potId)
     {
         if (potId == Guid.Empty)
             throw new ArgumentException("Pot ID cannot be empty.", nameof(potId));
@@ -44,7 +44,7 @@ public sealed class ChipTransactionBuilder
         return this;
     }
 
-    public ChipTransactionBuilder ToUser(string userId)
+    public TransactionBuilder ToUser(string userId)
     {
         if (string.IsNullOrWhiteSpace(userId))
             throw new ArgumentException("User ID cannot be empty.", nameof(userId));
@@ -56,7 +56,7 @@ public sealed class ChipTransactionBuilder
         return this;
     }
 
-    public ChipTransactionBuilder ToPot(Guid potId)
+    public TransactionBuilder ToPot(Guid potId)
     {
         if (potId == Guid.Empty)
             throw new ArgumentException("Pot ID cannot be empty.", nameof(potId));
@@ -68,37 +68,16 @@ public sealed class ChipTransactionBuilder
         return this;
     }
 
-    public ChipTransactionBuilder AddChip(Guid chipId, int count)
+    public TransactionBuilder AddValue(int value)
     {
-        if (chipId == Guid.Empty)
-            throw new ArgumentException("Chip ID cannot be empty.", nameof(chipId));
+        if (value < 1) throw new ArgumentOutOfRangeException(nameof(value), "Value must be greater than zero.");
 
-        if (count <= 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(count),
-                count,
-                "Chip count must be greater than zero.");
-
-        var existing = _transaction.Chips
-            .FirstOrDefault(x => x.ChipId == chipId);
-
-        if (existing is null)
-        {
-            _transaction.Chips.Add(new TransactionChip
-            {
-                ChipId = chipId,
-                ChipCount = count
-            });
-        }
-        else
-        {
-            existing.ChipCount += count;
-        }
+        _transaction.SetValue(value);
 
         return this;
     }
 
-    public ChipTransaction Build()
+    public Transaction Build()
     {
         if (!_transaction.HasSource())
             throw new InvalidOperationException(
@@ -108,9 +87,9 @@ public sealed class ChipTransactionBuilder
             throw new InvalidOperationException(
                 "Transaction must have a destination.");
 
-        if (_transaction.Chips.Count == 0)
+        if (_transaction.Value == 0)
             throw new InvalidOperationException(
-                "Transaction must contain at least one chip.");
+                "Transaction must contain value");
 
         return _transaction;
     }
@@ -129,7 +108,7 @@ public sealed class ChipTransactionBuilder
                 "Transaction already has a destination.");
     }
 
-    public ChipTransactionBuilder ToShop()
+    public TransactionBuilder ToShop()
     {
         EnsureDestinationIsEmpty();
 
@@ -137,8 +116,8 @@ public sealed class ChipTransactionBuilder
 
         return this;
     }
-    
-    public ChipTransactionBuilder FromShop()
+
+    public TransactionBuilder FromShop()
     {
         EnsureSourceIsEmpty();
 

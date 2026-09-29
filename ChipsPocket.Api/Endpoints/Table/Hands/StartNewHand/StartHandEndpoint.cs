@@ -78,9 +78,9 @@ public class StartHandEndpoint : IEndpoint
                         ? table.BigBlindAmount
                         : 1;
 
-                var userStack = await userStackService.GetAsync(tableId, seat.UserId!);
+                var userBalance = await userStackService.GetBalanceAsync(tableId, seat.UserId!);
 
-                if (userStack.TotalValue < requiredAmount)
+                if (userBalance < requiredAmount)
                     return TypedResults.BadRequest(
                         $"User {seat.UserId} does not have enough balance to cover the required amount of {requiredAmount}.");
             }

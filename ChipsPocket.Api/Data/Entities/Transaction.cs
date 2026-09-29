@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChipsPocket.Api.Data.Entities;
 
-public class ChipTransaction : Entity
+public class Transaction : Entity
 {
     public Guid? TableId { get; init; }
     public Table? Table { get; private set; }
@@ -23,7 +23,7 @@ public class ChipTransaction : Entity
     public bool FromShop { get; private set; }
     public bool ToShop { get; private set; }
 
-    public List<TransactionChip> Chips { get; } = [];
+    public int Value { get; private set; }
 
     internal void SetFromUser(string userId)
     {
@@ -65,15 +65,15 @@ public class ChipTransaction : Entity
         return ToUserId is not null || ToPotId is not null || ToShop;
     }
 
-    public int GetValue()
+    internal void SetValue(int value)
     {
-        return Chips.Sum(x => x.GetValue());
+        Value = value;
     }
 }
 
-public class ChipTransactionConfig : IEntityTypeConfiguration<ChipTransaction>
+public class ChipTransactionConfig : IEntityTypeConfiguration<Transaction>
 {
-    public void Configure(EntityTypeBuilder<ChipTransaction> builder)
+    public void Configure(EntityTypeBuilder<Transaction> builder)
     {
         builder.HasKey(x => x.Id);
 
@@ -101,10 +101,5 @@ public class ChipTransactionConfig : IEntityTypeConfiguration<ChipTransaction>
             .WithMany()
             .HasForeignKey(x => x.ToPotId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany(x => x.Chips)
-            .WithOne(x => x.Transaction)
-            .HasForeignKey(x => x.TransactionId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

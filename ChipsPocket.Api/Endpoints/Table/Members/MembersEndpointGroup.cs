@@ -1,7 +1,8 @@
-﻿using ChipsPocket.Api.Endpoints.Table.Members.GetMembers;
+﻿using ChipsPocket.Api.Endpoints.Table.Members.Balance;
+using ChipsPocket.Api.Endpoints.Table.Members.GetJoinToken;
+using ChipsPocket.Api.Endpoints.Table.Members.GetMembers;
+using ChipsPocket.Api.Endpoints.Table.Members.Join;
 using ChipsPocket.Api.Endpoints.Table.Members.Remove;
-using ChipsPocket.Api.Endpoints.Table.Players.GetJoinToken;
-using ChipsPocket.Api.Endpoints.Table.Players.Join;
 
 namespace ChipsPocket.Api.Endpoints.Table.Members;
 
@@ -16,10 +17,14 @@ public static class MembersEndpointGroup
                 .WithTags("Tables")
                 .WithDescription("Endpoints for managing and joining a table members.");
 
-            GetJoinTokenEndpoint.Map(group);
+            var groupWithTableId = endpoints.MapGroup("{tableId:guid}/members");
+
             JoinToTableEndpoint.Map(group);
-            GetMembersEndpoint.Map(group);
-            RemoveFromMembersEndpoint.Map(group);
+            GetJoinTokenEndpoint.Map(groupWithTableId);
+            GetMembersEndpoint.Map(groupWithTableId);
+            RemoveFromMembersEndpoint.Map(groupWithTableId);
+
+            groupWithTableId.MapMemberBalanceEndpoints();
 
             return endpoints;
         }

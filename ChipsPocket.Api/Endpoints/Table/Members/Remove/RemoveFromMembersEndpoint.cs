@@ -4,14 +4,13 @@ public class RemoveFromMembersEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
-        group.MapDelete(
-                "{tableId:guid}/members/{removeUserId}",
+        group.MapDelete("{memberId}",
                 async Task<Results<
                     ForbidHttpResult,
                     NotFound<string>,
                     Ok>> (
                     [FromRoute] Guid tableId,
-                    [FromRoute] string removeUserId,
+                    [FromRoute] string memberId,
                     [FromServices] AppDbContext db,
                     [FromServices] ICurrentUser currentUser) =>
                 {
@@ -23,14 +22,14 @@ public class RemoveFromMembersEndpoint : IEndpoint
                         return TypedResults.NotFound("Table not found");
 
                     var isManager = table.ManagerId == currentUser.Id;
-                    var removingSelf = removeUserId == currentUser.Id;
+                    var removingSelf = memberId == currentUser.Id;
 
                     if (!isManager && !removingSelf) return TypedResults.Forbid();
 
                     if (isManager && removingSelf) return TypedResults.Forbid();
 
                     var member = table.Members
-                        .SingleOrDefault(u => u.UserId == removeUserId);
+                        .SingleOrDefault(u => u.UserId == memberId);
 
                     if (member is null)
                         return TypedResults.NotFound("User is not in the members");
@@ -38,7 +37,7 @@ public class RemoveFromMembersEndpoint : IEndpoint
                     var claimedSeat = await db.Seats
                         .SingleOrDefaultAsync(s =>
                             s.TableId == tableId &&
-                            s.UserId == removeUserId);
+                            s.UserId == memberId);
 
                     if (claimedSeat is not null)
                         claimedSeat.UserId = null;

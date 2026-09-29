@@ -6,7 +6,7 @@ public class GetMembersEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
-        group.MapGet("{tableId:guid}", async Task<Results<
+        group.MapGet("", async Task<Results<
                 ForbidHttpResult,
                 Ok<IEnumerable<MemberDto>>>> (
                 [FromRoute] Guid tableId,

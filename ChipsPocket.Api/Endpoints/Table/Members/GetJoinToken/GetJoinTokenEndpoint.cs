@@ -1,4 +1,4 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.Players.GetJoinToken;
+﻿namespace ChipsPocket.Api.Endpoints.Table.Members.GetJoinToken;
 
 public record GetJoinTokenResponse(string Token);
 
@@ -6,7 +6,7 @@ public class GetJoinTokenEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
-        group.MapGet("{tableId:guid}/join-token", async Task<Results<
+        group.MapGet("join-token", async Task<Results<
                 Ok<GetJoinTokenResponse>,
                 NotFound<string>>> (
                 [FromRoute] Guid tableId,

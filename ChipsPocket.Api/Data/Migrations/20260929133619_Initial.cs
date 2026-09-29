@@ -51,20 +51,6 @@ namespace ChipsPocket.Api.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Chips",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
-                    Picture = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
-                    Value = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Chips", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -346,6 +332,7 @@ namespace ChipsPocket.Api.Data.Migrations
                     ToPotId = table.Column<Guid>(type: "TEXT", nullable: true),
                     FromShop = table.Column<bool>(type: "INTEGER", nullable: false),
                     ToShop = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Value = table.Column<int>(type: "INTEGER", nullable: false),
                     HandId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -386,31 +373,6 @@ namespace ChipsPocket.Api.Data.Migrations
                         principalTable: "Tables",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TransactionChip",
-                columns: table => new
-                {
-                    TransactionId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ChipId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ChipCount = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TransactionChip", x => new { x.TransactionId, x.ChipId });
-                    table.ForeignKey(
-                        name: "FK_TransactionChip_ChipTransactions_TransactionId",
-                        column: x => x.TransactionId,
-                        principalTable: "ChipTransactions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TransactionChip_Chips_ChipId",
-                        column: x => x.ChipId,
-                        principalTable: "Chips",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -537,11 +499,6 @@ namespace ChipsPocket.Api.Data.Migrations
                 column: "ManagerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TransactionChip_ChipId",
-                table: "TransactionChip",
-                column: "ChipId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_WaitingForAction_HandId",
                 table: "WaitingForAction",
                 column: "HandId",
@@ -572,22 +529,16 @@ namespace ChipsPocket.Api.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "TableMember");
+                name: "ChipTransactions");
 
             migrationBuilder.DropTable(
-                name: "TransactionChip");
+                name: "TableMember");
 
             migrationBuilder.DropTable(
                 name: "WaitingForAction");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "ChipTransactions");
-
-            migrationBuilder.DropTable(
-                name: "Chips");
 
             migrationBuilder.DropTable(
                 name: "Pot");

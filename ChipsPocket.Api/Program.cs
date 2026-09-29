@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using ChipsPocket.Api.Endpoints.Auth;
-using ChipsPocket.Api.Endpoints.Chips;
 using ChipsPocket.Api.Endpoints.Table;
 using ChipsPocket.Api.Extensions;
 using ChipsPocket.Api.Realtime;
@@ -34,7 +33,6 @@ if (app.Environment.IsDevelopment())
 
 
 await app.ApplyMigrationsAsync();
-await app.SeedDataAsync();
 
 app.Services
     .GetRequiredService<RealtimeRegistry>()
@@ -51,7 +49,6 @@ app.MapDefaultEndpoints();
 
 app.MapAuthEndpoints();
 app.MapTablesEndpoints();
-app.MapChipsEndpoints();
 
 app.MapGet("/api/version", () =>
 {

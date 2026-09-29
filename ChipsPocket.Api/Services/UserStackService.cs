@@ -2,56 +2,23 @@
 
 public sealed class UserStackService(AppDbContext db) : IUserStackService
 {
-    public async Task<UserStackResponse> GetAsync(Guid tableId, string userId,
+    public async Task<int> GetBalanceAsync(Guid tableId, string userId,
         CancellationToken cancellationToken = default)
     {
         var tableExists = await db.Tables.AnyAsync(x => x.Id == tableId, cancellationToken);
 
         if (!tableExists) throw new InvalidOperationException($"Table with ID {tableId} does not exist.");
 
-        var transactions = await db.ChipTransactions
-            .Where(t =>
-                t.TableId == tableId &&
-                (t.FromUserId == userId ||
-                 t.ToUserId == userId))
-            .Include(t => t.Chips)
-            .ThenInclude(tc => tc.Chip)
+        var userTransactionsFromTheTable = await db.ChipTransactions
+            .Where(t => t.TableId == tableId && (t.FromUserId == userId || t.ToUserId == userId))
             .ToListAsync(cancellationToken);
 
-        var chips = transactions
-            .SelectMany(t => t.Chips.Select(tc => new
-            {
-                tc.ChipId,
-                tc.Chip.Name,
-                tc.Chip.Picture,
-                tc.Chip.Value,
-
-                Count = t.ToUserId == userId
-                    ? tc.ChipCount
-                    : -tc.ChipCount
-            }))
-            .GroupBy(x => new
-            {
-                x.ChipId,
-                x.Name,
-                x.Picture,
-                x.Value
-            })
-            .Select(g => new UserStackChipResponse(
-                g.Key.ChipId,
-                g.Key.Name,
-                g.Key.Picture,
-                g.Key.Value,
-                g.Sum(x => x.Count)))
-            .Where(x => x.Count > 0)
-            .OrderBy(x => x.Value)
+        var values = userTransactionsFromTheTable
+            .Select(t => t.ToUserId == userId ? t.Value : -t.Value)
             .ToList();
 
-        var totalValue = chips.Sum(x => x.Value * x.Count);
+        var total = values.Sum();
 
-        return new UserStackResponse(
-            userId,
-            totalValue,
-            chips);
+        return total;
     }
 }

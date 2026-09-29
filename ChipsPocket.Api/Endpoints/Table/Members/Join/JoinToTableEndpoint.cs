@@ -1,6 +1,6 @@
 ﻿using ChipsPocket.Api.Notifications.Table;
 
-namespace ChipsPocket.Api.Endpoints.Table.Players.Join;
+namespace ChipsPocket.Api.Endpoints.Table.Members.Join;
 
 public record JoinResponse(Guid TableId);
 

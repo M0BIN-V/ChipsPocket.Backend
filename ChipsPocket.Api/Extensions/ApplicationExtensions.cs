@@ -12,10 +12,7 @@ public static class ApplicationExtensions
                                        ?? throw new InvalidOperationException("Static files directory is missing.");
 
             var staticFiles = Path.Combine(app.Environment.ContentRootPath, staticFilesDirectory);
-
-            //TMP
-            Console.WriteLine($"Static files path :{staticFiles}");
-
+            
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(staticFiles),

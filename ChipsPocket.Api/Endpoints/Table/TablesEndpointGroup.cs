@@ -1,13 +1,10 @@
-﻿using ChipsPocket.Api.Endpoints.Table.BuyIn;
-using ChipsPocket.Api.Endpoints.Table.CashOut;
-using ChipsPocket.Api.Endpoints.Table.ClaimSeat;
+﻿using ChipsPocket.Api.Endpoints.Table.ClaimSeat;
 using ChipsPocket.Api.Endpoints.Table.CreateTable;
 using ChipsPocket.Api.Endpoints.Table.GetMyTables;
 using ChipsPocket.Api.Endpoints.Table.GetTableInfo;
 using ChipsPocket.Api.Endpoints.Table.Hands;
 using ChipsPocket.Api.Endpoints.Table.Members;
 using ChipsPocket.Api.Endpoints.Table.ReleaseSeat;
-using ChipsPocket.Api.Endpoints.Table.UserStack;
 
 namespace ChipsPocket.Api.Endpoints.Table;
 
@@ -26,11 +23,7 @@ public static class TablesEndpointGroup
             GetTableInfoEndpoint.Map(group);
             ClaimSeatEndpoint.Map(group);
             ReleaseSeatEndpoint.Map(group);
-            BuyInEndpoint.Map(group);
-            CashOutEndpoint.Map(group);
-            GetUserStackEndpoint.Map(group);
             GetMyTablesEndpoint.Map(group);
-            
 
             group.MapMembersEndpoints();
             group.MapHandsEndpoints();

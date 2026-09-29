@@ -15,7 +15,7 @@ public class Hand : Entity
 
     public Street CurrentStreet { get; set; }
 
-    public List<ChipTransaction> ChipTransactions { get; set; } = [];
+    public List<Transaction> ChipTransactions { get; set; } = [];
 
     public Seat BigBlindSeat { get; set; } = null!;
     public Guid BigBlindSeatId { get; set; }

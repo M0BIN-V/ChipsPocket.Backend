@@ -18,9 +18,6 @@ public class DbContextInstaller : IServiceInstaller
 
         var databasePath = Path.Combine(dataDirectory, dbFileName);
 
-        //TMP
-        Console.WriteLine($"Database file path :{databasePath}");
-
         builder.Services.AddDbContext<AppDbContext>(options => { options.UseSqlite($"Data Source={databasePath}"); });
     }
 }
