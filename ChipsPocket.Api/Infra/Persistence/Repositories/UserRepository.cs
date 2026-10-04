@@ -1,11 +1,7 @@
-﻿using ChipsPocket.Domain.Entities;
+﻿using ChipsPocket.Domain.Contracts;
+using ChipsPocket.Domain.Entities;
 
-namespace ChipsPocket.Api.Services;
-
-public interface IUserRepository
-{
-    public Task<List<User>> GetUsersAsync(List<string> userIds);
-}
+namespace ChipsPocket.Api.Infra.Persistence.Repositories;
 
 public class UserRepository(AppDbContext db) : IUserRepository
 {

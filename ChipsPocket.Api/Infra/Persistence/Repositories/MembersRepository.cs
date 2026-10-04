@@ -1,15 +1,9 @@
-﻿namespace ChipsPocket.Api.Services;
+﻿using ChipsPocket.Domain.Contracts;
+using ChipsPocket.Domain.Entities;
 
-public interface IMemberService
-{
-    public Task<bool> IsMemberOfTableAsync(Guid tableId, string userId);
-    public Task<List<TableMember>> GetTableMembersAsync(Guid tableId);
-    Task<List<Guid>> GetTableIdsAsync(string userId);
-    public void AddMember(Guid tableId, string userId);
-    Task RemoveAsync(Guid tableId, string userId);
-}
+namespace ChipsPocket.Api.Infra.Persistence.Repositories;
 
-public class MemberService(AppDbContext db) : IMemberService
+public class MembersRepository(AppDbContext db) : IMembersRepository
 {
     public Task<bool> IsMemberOfTableAsync(Guid tableId, string userId)
     {

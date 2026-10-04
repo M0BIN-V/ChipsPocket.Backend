@@ -1,4 +1,5 @@
-﻿using ChipsPocket.Domain.Entities;
+﻿using ChipsPocket.Api.Infra.Persistence;
+using ChipsPocket.Domain.Entities;
 using DiServiceInstaller;
 
 namespace ChipsPocket.Api.ServiceInstallers;

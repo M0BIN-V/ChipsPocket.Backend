@@ -1,4 +1,5 @@
-﻿using DiServiceInstaller;
+﻿using ChipsPocket.Api.Infra.Persistence;
+using DiServiceInstaller;
 
 namespace ChipsPocket.Api.ServiceInstallers;
 

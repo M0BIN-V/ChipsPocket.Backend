@@ -1,4 +1,6 @@
-﻿namespace ChipsPocket.Api.Extensions;
+﻿using ChipsPocket.Api.Infra.Persistence;
+
+namespace ChipsPocket.Api.Extensions;
 
 public static class DatabaseExtensions
 {

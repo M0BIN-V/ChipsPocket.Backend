@@ -16,7 +16,7 @@ public class RemoveFromMembersEndpoint : IEndpoint
                     [FromRoute] string memberId,
                     [FromServices] ISeatRepository seatRepository,
                     [FromServices] ITableRepository tableRepository,
-                    [FromServices] IMemberService memberService,
+                    [FromServices] IMembersRepository membersRepository,
                     [FromServices] IHandRepository handRepository,
                     [FromServices] ICurrentUser currentUser) =>
                 {
@@ -34,13 +34,13 @@ public class RemoveFromMembersEndpoint : IEndpoint
 
                     if (isManager && removingSelf) return Forbid();
 
-                    var tableMembers = await memberService.GetTableMembersAsync(tableId);
+                    var tableMembers = await membersRepository.GetTableMembersAsync(tableId);
 
                     if (tableMembers.All(m => m.UserId != memberId))
                         return NotFound("User is not in the members");
 
                     await seatRepository.ReleaseSeatAsync(tableId, memberId);
-                    await memberService.RemoveAsync(tableId, memberId);
+                    await membersRepository.RemoveAsync(tableId, memberId);
 
                     return Ok();
                 })

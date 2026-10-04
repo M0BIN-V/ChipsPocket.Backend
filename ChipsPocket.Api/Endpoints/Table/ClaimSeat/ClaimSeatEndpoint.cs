@@ -1,4 +1,5 @@
-﻿using ChipsPocket.Api.Notifications.Table;
+﻿using ChipsPocket.Api.Infra.Persistence;
+using ChipsPocket.Api.Notifications.Table;
 using ChipsPocket.Domain.Contracts;
 using ChipsPocket.Domain.Entities;
 
@@ -14,14 +15,14 @@ public class ClaimSeatEndpoint : IEndpoint
                     NotFound,
                     Conflict<string>,
                     Ok>> (
-                    [FromRoute] Guid tableId,
-                    [FromRoute] Guid seatId,
-                    [FromServices] ITableRepository tableRepository,
-                    [FromServices] ITableNotificationPublisher publisher,
-                    [FromServices] AppDbContext db,
-                    [FromServices] IMemberService memberService,
-                    [FromServices] IHandRepository handRepository,
-                    [FromServices] ICurrentUser currentUser) =>
+                    Guid tableId,
+                     Guid seatId,
+                     ITableRepository tableRepository,
+                    ITableNotificationPublisher publisher,
+                    AppDbContext db,
+                    IMembersRepository membersRepository,
+                    IHandRepository handRepository,
+                    ICurrentUser currentUser) =>
                 {
                     var lastHand = await handRepository.GetLastHandAsync(tableId);
                     if (lastHand is not null && lastHand.CurrentStreet != Street.Finished)
@@ -29,7 +30,7 @@ public class ClaimSeatEndpoint : IEndpoint
 
                     var user = await db.Users.SingleAsync(u => u.Id == currentUser.Id);
 
-                    if (!await memberService.IsMemberOfTableAsync(tableId, user.Id)) return Forbid();
+                    if (!await membersRepository.IsMemberOfTableAsync(tableId, user.Id)) return Forbid();
 
                     var newSeat = await db.Seats
                         .FirstOrDefaultAsync(x => x.Id == seatId && x.TableId == tableId);

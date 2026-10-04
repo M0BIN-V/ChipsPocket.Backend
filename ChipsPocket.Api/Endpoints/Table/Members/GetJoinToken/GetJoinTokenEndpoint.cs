@@ -15,13 +15,13 @@ public class GetJoinTokenEndpoint : IEndpoint
                 [FromRoute] Guid tableId,
                 [FromServices] ITableJoinTokenService tokenService,
                 [FromServices] ITableRepository tableRepository,
-                [FromServices] IMemberService memberService,
+                [FromServices] IMembersRepository membersRepository,
                 [FromServices] ICurrentUser currentUser) =>
             {
                 var table = await tableRepository.GetTableAsync(tableId);
                 if (table is null) return NotFound("table not found");
 
-                var isUserMemberOfTable = await memberService.IsMemberOfTableAsync(tableId, currentUser.Id);
+                var isUserMemberOfTable = await membersRepository.IsMemberOfTableAsync(tableId, currentUser.Id);
 
                 if (!isUserMemberOfTable) return Forbid();
 

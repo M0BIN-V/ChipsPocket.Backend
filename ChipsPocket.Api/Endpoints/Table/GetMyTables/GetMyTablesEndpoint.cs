@@ -8,12 +8,12 @@ public class GetMyTablesEndpoint : IEndpoint
     {
         group.MapGet("my", async Task<Ok<List<GetMyTablesResponse>>> (
                 ICurrentUser currentUser,
-                IMemberService memberService,
+                IMembersRepository membersRepository,
                 ITableRepository tableRepository) =>
             {
                 var userId = currentUser.Id;
 
-                var userTableIds = await memberService.GetTableIdsAsync(userId);
+                var userTableIds = await membersRepository.GetTableIdsAsync(userId);
 
                 var tables = await tableRepository.GetTablesAsync(userTableIds);
 

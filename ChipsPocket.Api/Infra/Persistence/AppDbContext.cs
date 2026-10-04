@@ -1,7 +1,8 @@
-﻿using ChipsPocket.Domain.Entities;
+﻿using ChipsPocket.Api.Infra.Persistence.EntityConfigs;
+using ChipsPocket.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-namespace ChipsPocket.Api.Data;
+namespace ChipsPocket.Api.Infra.Persistence;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User>(options)
 {

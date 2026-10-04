@@ -1,4 +1,5 @@
-﻿using ChipsPocket.Api.Notifications.Table;
+﻿using ChipsPocket.Api.Infra.Persistence;
+using ChipsPocket.Api.Notifications.Table;
 using ChipsPocket.Domain.Contracts;
 
 namespace ChipsPocket.Api.Endpoints.Table.Members.Join;
@@ -15,7 +16,7 @@ public class JoinToTableEndpoint : IEndpoint
                 Conflict,
                 NotFound<string>>> (
                 [FromRoute] string token,
-                [FromServices] IMemberService memberService,
+                [FromServices] IMembersRepository membersRepository,
                 [FromServices] ITableRepository tableRepository,
                 [FromServices] ITableNotificationPublisher publisher,
                 [FromServices] ITableJoinTokenService tokenService,
@@ -33,11 +34,11 @@ public class JoinToTableEndpoint : IEndpoint
 
                 if (table is null) return NotFound("table not found");
 
-                var members = await memberService.GetTableMembersAsync(tableId);
+                var members = await membersRepository.GetTableMembersAsync(tableId);
 
                 if (members.Count == 10) return Conflict();
 
-                if (members.All(u => u.UserId != user.Id)) memberService.AddMember(tableId, user.Id);
+                if (members.All(u => u.UserId != user.Id)) membersRepository.AddMember(tableId, user.Id);
 
                 await db.SaveChangesAsync();
 

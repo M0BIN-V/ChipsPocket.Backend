@@ -1,4 +1,6 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.Members.GetMembers;
+﻿using ChipsPocket.Domain.Contracts;
+
+namespace ChipsPocket.Api.Endpoints.Table.Members.GetMembers;
 
 public record MemberDto(string Id, string Username);
 
@@ -11,14 +13,14 @@ public class GetMembersEndpoint : IEndpoint
                 Ok<IEnumerable<MemberDto>>>> (
                 [FromRoute] Guid tableId,
                 [FromServices] IUserRepository userRepository,
-                [FromServices] IMemberService memberService,
+                [FromServices] IMembersRepository membersRepository,
                 [FromServices] ICurrentUser currentUser) =>
             {
-                var isMember = await memberService.IsMemberOfTableAsync(tableId, currentUser.Id);
+                var isMember = await membersRepository.IsMemberOfTableAsync(tableId, currentUser.Id);
 
                 if (!isMember) return Forbid();
 
-                var members = await memberService.GetTableMembersAsync(tableId);
+                var members = await membersRepository.GetTableMembersAsync(tableId);
                 var memberUserIds = members.Select(m => m.UserId)
                     .ToList();
 

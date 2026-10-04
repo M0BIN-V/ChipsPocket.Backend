@@ -1,4 +1,5 @@
-﻿using ChipsPocket.Api.Notifications.Table;
+﻿using ChipsPocket.Api.Infra.Persistence;
+using ChipsPocket.Api.Notifications.Table;
 using ChipsPocket.Domain.Contracts;
 using ChipsPocket.Domain.Entities;
 
@@ -16,12 +17,12 @@ public class ReleaseSeatEndpoint : IEndpoint
                 [FromRoute] Guid seatId,
                 [FromServices] ITableNotificationPublisher publisher,
                 [FromServices] AppDbContext db,
-                [FromServices] IMemberService memberService,
+                [FromServices] IMembersRepository membersRepository,
                 [FromServices] IHandRepository handRepository,
                 [FromServices] ITableRepository tableRepository,
                 [FromServices] ICurrentUser currentUser) =>
             {
-                if (!await memberService.IsMemberOfTableAsync(tableId, currentUser.Id))
+                if (!await membersRepository.IsMemberOfTableAsync(tableId, currentUser.Id))
                     return Forbid();
 
                 var lastHand = await handRepository.GetLastHandAsync(tableId);

@@ -1,4 +1,5 @@
-﻿using ChipsPocket.Domain.Contracts;
+﻿using ChipsPocket.Api.Infra.Persistence;
+using ChipsPocket.Domain.Contracts;
 using ChipsPocket.Domain.Entities;
 
 namespace ChipsPocket.Api.Endpoints.Table.GetTableInfo;
@@ -33,10 +34,10 @@ public class GetTableInfoEndpoint : IEndpoint
                 [FromServices] ITableRepository tableRepository,
                 [FromServices] AppDbContext db,
                 [FromServices] ISeatRepository seatRepository,
-                [FromServices] IMemberService memberService,
+                [FromServices] IMembersRepository membersRepository,
                 [FromServices] ICurrentUser currentUser) =>
             {
-                if (!await memberService.IsMemberOfTableAsync(tableId, currentUser.Id))
+                if (!await membersRepository.IsMemberOfTableAsync(tableId, currentUser.Id))
                     return Forbid();
 
                 var table = await db.Tables

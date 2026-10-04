@@ -1,7 +1,7 @@
 ﻿using ChipsPocket.Domain.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ChipsPocket.Api.Data.Entities;
+namespace ChipsPocket.Api.Infra.Persistence.EntityConfigs;
 
 public class HandConfig : IEntityTypeConfiguration<Hand>
 {

@@ -1,4 +1,6 @@
-﻿using ChipsPocket.Domain.Entities;
+﻿using ChipsPocket.Api.Infra.Persistence;
+using ChipsPocket.Api.Infra.Persistence.EntityConfigs;
+using ChipsPocket.Domain.Entities;
 
 namespace ChipsPocket.Api.Endpoints.Table.CreateTable;
 

@@ -1,14 +1,7 @@
 ﻿using ChipsPocket.Domain.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ChipsPocket.Api.Data.Entities;
-
-public class TableMember
-{
-    public string UserId { get; set; } = null!;
-
-    public Guid TableId { get; set; }
-}
+namespace ChipsPocket.Api.Infra.Persistence.EntityConfigs;
 
 public class TableMemberUserConfig : IEntityTypeConfiguration<TableMember>
 {

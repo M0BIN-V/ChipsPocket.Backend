@@ -1,7 +1,7 @@
 ﻿using ChipsPocket.Domain.Contracts;
 using ChipsPocket.Domain.Entities;
 
-namespace ChipsPocket.Api.Services;
+namespace ChipsPocket.Api.Infra.Persistence.Repositories;
 
 public class SeatRepository(AppDbContext db) : ISeatRepository
 {

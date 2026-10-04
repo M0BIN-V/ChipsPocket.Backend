@@ -1,4 +1,6 @@
-﻿using ChipsPocket.Domain.Entities;
+﻿using ChipsPocket.Api.Infra.Persistence;
+using ChipsPocket.Domain.Contracts;
+using ChipsPocket.Domain.Entities;
 using ChipsPocket.Domain.Services.UserStack;
 
 namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Deduct;
@@ -27,7 +29,7 @@ public class DeductMemberBalanceEndpoint : IEndpoint
                 [FromRoute] string memberId,
                 [FromRoute] Guid tableId,
                 [FromServices] AppDbContext db,
-                [FromServices] IMemberService memberService,
+                [FromServices] IMembersRepository membersRepository,
                 [FromServices] IUserStackService userStackService,
                 [FromServices] ICurrentUser currentUser) =>
             {
@@ -36,7 +38,7 @@ public class DeductMemberBalanceEndpoint : IEndpoint
 
                 if (!userIsTableManager) return Forbid();
 
-                var userIsTableMember = await memberService.IsMemberOfTableAsync(tableId, memberId);
+                var userIsTableMember = await membersRepository.IsMemberOfTableAsync(tableId, memberId);
 
                 if (!userIsTableMember) return NotFound("source user not found");
 

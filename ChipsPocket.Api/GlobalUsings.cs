@@ -2,8 +2,6 @@
 
 global using System.Text;
 global using ChipsPocket.Api.Abstractions.Endpionts;
-global using ChipsPocket.Api.Data;
-global using ChipsPocket.Api.Data.Entities;
 global using ChipsPocket.Api.EndpointFilters;
 global using ChipsPocket.Api.Options;
 global using ChipsPocket.Api.Services;

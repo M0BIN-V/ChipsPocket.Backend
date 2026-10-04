@@ -1,4 +1,5 @@
-﻿using ChipsPocket.Api.Notifications.Table;
+﻿using ChipsPocket.Api.Infra.Persistence;
+using ChipsPocket.Api.Notifications.Table;
 using ChipsPocket.Domain.Contracts;
 using ChipsPocket.Domain.Services;
 using ChipsPocket.Domain.Services.HandManager;

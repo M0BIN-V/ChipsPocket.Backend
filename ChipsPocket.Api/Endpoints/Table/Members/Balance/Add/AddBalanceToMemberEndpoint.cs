@@ -1,4 +1,5 @@
-﻿using ChipsPocket.Domain.Contracts;
+﻿using ChipsPocket.Api.Infra.Persistence;
+using ChipsPocket.Domain.Contracts;
 using ChipsPocket.Domain.Entities;
 
 namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Add;
@@ -25,7 +26,7 @@ public class AddBalanceToMemberEndpoint : IEndpoint
                 [FromBody] AddBalanceRequest request,
                 [FromRoute] string memberId,
                 [FromRoute] Guid tableId,
-                [FromServices] IMemberService memberService,
+                [FromServices] IMembersRepository membersRepository,
                 [FromServices] ITableRepository tableRepository,
                 [FromServices] AppDbContext db,
                 [FromServices] ICurrentUser currentUser) =>
@@ -33,7 +34,7 @@ public class AddBalanceToMemberEndpoint : IEndpoint
                 var managerId = await tableRepository.GetManagerIdAsync(tableId);
                 if (managerId != currentUser.Id) return Forbid();
 
-                if (!await memberService.IsMemberOfTableAsync(tableId, memberId))
+                if (!await membersRepository.IsMemberOfTableAsync(tableId, memberId))
                     return NotFound("destination user not found");
 
                 var transaction = TransactionBuilder
