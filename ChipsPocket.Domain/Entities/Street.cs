@@ -1,12 +1,11 @@
-﻿namespace ChipsPocket.Api.Data.Entities;
+﻿namespace ChipsPocket.Domain.Entities;
 
 public enum Street
 {
-    Pending,
     PreFlop,
     Flop,
     Turn,
     River,
     Showdown,
-    Finished,
+    Finished
 }

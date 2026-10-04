@@ -1,5 +1,4 @@
-﻿
-namespace ChipsPocket.Api.Data.Entities.Abstractions;
+﻿namespace ChipsPocket.Domain.Entities.Abstractions;
 
 public abstract class Entity : IEntity<Guid>
 {

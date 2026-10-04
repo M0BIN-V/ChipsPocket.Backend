@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace ChipsPocket.Api.Realtime;
 
@@ -20,10 +19,7 @@ public static class RealtimeSchemaGenerator
         {
             var schema = GenerateSchema(nullableType, visited);
 
-            if (schema is Dictionary<string, object> dictionary)
-            {
-                dictionary["nullable"] = true;
-            }
+            if (schema is Dictionary<string, object> dictionary) dictionary["nullable"] = true;
 
             return schema;
         }
@@ -49,28 +45,21 @@ public static class RealtimeSchemaGenerator
             type == typeof(ushort) ||
             type == typeof(uint) ||
             type == typeof(ulong))
-        {
             return Object("integer");
-        }
 
         if (type == typeof(float) ||
             type == typeof(double) ||
             type == typeof(decimal))
-        {
             return Object("number");
-        }
 
         if (type.IsEnum)
-        {
             return new Dictionary<string, object>
             {
                 ["type"] = "string",
                 ["enum"] = Enum.GetNames(type)
             };
-        }
 
         if (type.IsArray)
-        {
             return new Dictionary<string, object>
             {
                 ["type"] = "array",
@@ -78,7 +67,6 @@ public static class RealtimeSchemaGenerator
                     type.GetElementType()!,
                     visited)
             };
-        }
 
         if (IsDictionary(type))
         {
@@ -105,12 +93,10 @@ public static class RealtimeSchemaGenerator
         }
 
         if (!visited.Add(type))
-        {
             return new Dictionary<string, object>
             {
                 ["type"] = "object"
             };
-        }
 
         var properties = new Dictionary<string, object>();
         var required = new List<string>();
@@ -125,10 +111,7 @@ public static class RealtimeSchemaGenerator
             properties[property.Name] =
                 GenerateSchema(property.PropertyType, visited);
 
-            if (IsRequired(property))
-            {
-                required.Add(property.Name);
-            }
+            if (IsRequired(property)) required.Add(property.Name);
         }
 
         visited.Remove(type);
@@ -139,10 +122,7 @@ public static class RealtimeSchemaGenerator
             ["properties"] = properties
         };
 
-        if (required.Count > 0)
-        {
-            result["required"] = required;
-        }
+        if (required.Count > 0) result["required"] = required;
 
         return result;
     }
@@ -153,9 +133,7 @@ public static class RealtimeSchemaGenerator
 
         if (type.IsValueType &&
             Nullable.GetUnderlyingType(type) is null)
-        {
             return true;
-        }
 
         return property.GetCustomAttribute<RealtimeRequiredAttribute>() is not null;
     }
@@ -181,10 +159,7 @@ public static class RealtimeSchemaGenerator
             ["type"] = type
         };
 
-        if (format is not null)
-        {
-            result["format"] = format;
-        }
+        if (format is not null) result["format"] = format;
 
         return result;
     }

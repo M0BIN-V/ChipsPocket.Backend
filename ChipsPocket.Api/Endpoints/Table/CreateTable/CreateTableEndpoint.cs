@@ -1,4 +1,6 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.CreateTable;
+﻿using ChipsPocket.Domain.Entities;
+
+namespace ChipsPocket.Api.Endpoints.Table.CreateTable;
 
 public class CreateTableEndpoint : IEndpoint
 {
@@ -16,28 +18,37 @@ public class CreateTableEndpoint : IEndpoint
                 var userId = currentUser.Id;
 
                 if (await db.Tables.AnyAsync(t => t.CreatedById == userId && t.Name == request.TableName))
-                    return TypedResults.Conflict();
+                    return Conflict();
 
-                var table = Data.Entities.Table.Create(
+                var table = Domain.Entities.Table.Create(
                     request.TableName,
                     currentUser.Id,
-                    request.SmallBlindAmount,
-                    request.BigBlindAmount);
-
-                table.Members.Add(new TableMember
-                {
-                    UserId = userId,
-                    TableId = table.Id
-                });
+                    request.SmallBlindAmount);
 
                 table.ManagerId = userId;
 
+                var seats = Enumerable.Range(1, 10)
+                    .Select(order => new Seat
+                    {
+                        TableId = table.Id,
+                        Order = order
+                    })
+                    .ToList();
+
+                var member = new TableMember
+                {
+                    UserId = userId,
+                    TableId = table.Id
+                };
+
                 await db.Tables.AddAsync(table);
+                await db.TableMembers.AddAsync(member);
+                await db.Seats.AddRangeAsync(seats);
                 await db.SaveChangesAsync();
-                
+
                 logger.LogInformation("table created");
 
-                return TypedResults.Created($"/api/tables/{table.Id}",
+                return Created($"/api/tables/{table.Id}",
                     new CreateTableResponse(table.Id));
             })
             .WithSummary("Create a poker table")

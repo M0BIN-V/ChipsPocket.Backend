@@ -1,13 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using ChipsPocket.Domain.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChipsPocket.Api.Data.Entities;
 
 public class TableMember
 {
     public string UserId { get; set; } = null!;
-    public User User { get; set; } = null!;
 
-    public Table Table { get; set; } = null!;
     public Guid TableId { get; set; }
 }
 
@@ -24,13 +23,13 @@ public class TableMemberUserConfig : IEntityTypeConfiguration<TableMember>
         builder.Property(x => x.UserId)
             .HasMaxLength(300);
 
-        builder.HasOne(x => x.User)
+        builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.Table)
-            .WithMany(x => x.Members)
+        builder.HasOne<Table>()
+            .WithMany()
             .HasForeignKey(x => x.TableId);
     }
 }

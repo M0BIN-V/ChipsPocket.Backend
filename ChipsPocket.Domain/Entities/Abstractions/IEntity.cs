@@ -1,4 +1,4 @@
-﻿namespace ChipsPocket.Api.Data.Entities.Abstractions;
+﻿namespace ChipsPocket.Domain.Entities.Abstractions;
 
 public interface IEntity<TId>
 {

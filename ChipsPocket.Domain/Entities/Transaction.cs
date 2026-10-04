@@ -1,7 +1,6 @@
-﻿using ChipsPocket.Api.Data.Entities.Abstractions;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using ChipsPocket.Domain.Entities.Abstractions;
 
-namespace ChipsPocket.Api.Data.Entities;
+namespace ChipsPocket.Domain.Entities;
 
 public class Transaction : Entity
 {
@@ -24,6 +23,7 @@ public class Transaction : Entity
     public bool ToShop { get; private set; }
 
     public int Value { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; set; }
 
     internal void SetFromUser(string userId)
     {
@@ -68,38 +68,5 @@ public class Transaction : Entity
     internal void SetValue(int value)
     {
         Value = value;
-    }
-}
-
-public class ChipTransactionConfig : IEntityTypeConfiguration<Transaction>
-{
-    public void Configure(EntityTypeBuilder<Transaction> builder)
-    {
-        builder.HasKey(x => x.Id);
-
-        builder.HasOne(x => x.Table)
-            .WithMany()
-            .HasForeignKey(x => x.TableId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasOne(x => x.FromUser)
-            .WithMany()
-            .HasForeignKey(x => x.FromUserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(x => x.ToUser)
-            .WithMany()
-            .HasForeignKey(x => x.ToUserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(x => x.FromPot)
-            .WithMany()
-            .HasForeignKey(x => x.FromPotId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(x => x.ToPot)
-            .WithMany()
-            .HasForeignKey(x => x.ToPotId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

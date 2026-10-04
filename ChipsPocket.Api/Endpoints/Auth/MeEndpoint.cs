@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using ChipsPocket.Domain.Entities;
 
 namespace ChipsPocket.Api.Endpoints.Auth;
 
@@ -27,12 +28,12 @@ public static class MeEndpoint
     {
         var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (userId is null) return TypedResults.Unauthorized();
+        if (userId is null) return Unauthorized();
 
         var user = await userManager.FindByIdAsync(userId);
 
-        if (user is null) return TypedResults.Unauthorized();
+        if (user is null) return Unauthorized();
 
-        return TypedResults.Ok(new MeResponse(user.Id, user.UserName!, user.Email));
+        return Ok(new MeResponse(user.Id, user.UserName!, user.Email));
     }
 }

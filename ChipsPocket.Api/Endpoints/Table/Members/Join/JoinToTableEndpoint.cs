@@ -1,4 +1,5 @@
 ﻿using ChipsPocket.Api.Notifications.Table;
+using ChipsPocket.Domain.Contracts;
 
 namespace ChipsPocket.Api.Endpoints.Table.Members.Join;
 
@@ -14,33 +15,29 @@ public class JoinToTableEndpoint : IEndpoint
                 Conflict,
                 NotFound<string>>> (
                 [FromRoute] string token,
+                [FromServices] IMemberService memberService,
+                [FromServices] ITableRepository tableRepository,
                 [FromServices] ITableNotificationPublisher publisher,
                 [FromServices] ITableJoinTokenService tokenService,
                 [FromServices] AppDbContext db,
                 [FromServices] ICurrentUser currentUser) =>
             {
                 if (!tokenService.TryGetTableId(token.ToUpper(), out var tableId))
-                    return TypedResults.NotFound("table not found");
+                    return NotFound("table not found");
 
                 var user = await db.Users.SingleOrDefaultAsync(u => u.Id == currentUser.Id);
 
-                if (user is null) return TypedResults.Unauthorized();
+                if (user is null) return Unauthorized();
 
-                var table = await db.Tables
-                    .Include(t => t.Members)
-                    .SingleOrDefaultAsync(t => t.Id == tableId);
+                var table = await tableRepository.GetTableAsync(tableId);
 
-                if (table is null) return TypedResults.NotFound("table not found");
+                if (table is null) return NotFound("table not found");
 
-                if (table.Members.Count == 10)
-                    return TypedResults.Conflict();
+                var members = await memberService.GetTableMembersAsync(tableId);
 
-                if (table.Members.All(u => u.UserId != user.Id))
-                    table.Members.Add(new TableMember
-                    {
-                        UserId = user.Id,
-                        TableId = tableId
-                    });
+                if (members.Count == 10) return Conflict();
+
+                if (members.All(u => u.UserId != user.Id)) memberService.AddMember(tableId, user.Id);
 
                 await db.SaveChangesAsync();
 
@@ -48,7 +45,7 @@ public class JoinToTableEndpoint : IEndpoint
 
                 await publisher.PublishAsync(tableId, notification);
 
-                return TypedResults.Ok(new JoinResponse(tableId));
+                return Ok(new JoinResponse(tableId));
             })
             .WithSummary("Join to table players")
             .WithDescription("""

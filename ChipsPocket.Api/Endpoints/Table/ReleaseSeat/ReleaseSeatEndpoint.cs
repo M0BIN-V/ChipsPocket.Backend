@@ -1,6 +1,6 @@
-﻿using ChipsPocket.Api.Abstractions.Endpionts;
-using ChipsPocket.Api.Notifications.Table;
-using Microsoft.AspNetCore.Mvc;
+﻿using ChipsPocket.Api.Notifications.Table;
+using ChipsPocket.Domain.Contracts;
+using ChipsPocket.Domain.Entities;
 
 namespace ChipsPocket.Api.Endpoints.Table.ReleaseSeat;
 
@@ -8,47 +8,45 @@ public class ReleaseSeatEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
-        group.MapPost(
-                "{tableId:guid}/seats/{seatId:guid}/release",
-                async Task<Results<
-                    ForbidHttpResult,
-                    NotFound,
-                    Ok>> (
-                    [FromRoute] Guid tableId,
-                    [FromRoute] Guid seatId,
-                    [FromServices] ITableNotificationPublisher publisher,
-                    [FromServices] AppDbContext db,
-                    [FromServices] ICurrentUser currentUser) =>
-                {
-                    var isMember = await db.Tables
-                        .AnyAsync(t => t.Id == tableId && t.Members
-                            .Any(x => x.UserId == currentUser.Id));
+        group.MapPost("{tableId:guid}/seats/{seatId:guid}/release", async Task<Results<
+                ForbidHttpResult,
+                NotFound,
+                Ok>> (
+                [FromRoute] Guid tableId,
+                [FromRoute] Guid seatId,
+                [FromServices] ITableNotificationPublisher publisher,
+                [FromServices] AppDbContext db,
+                [FromServices] IMemberService memberService,
+                [FromServices] IHandRepository handRepository,
+                [FromServices] ITableRepository tableRepository,
+                [FromServices] ICurrentUser currentUser) =>
+            {
+                if (!await memberService.IsMemberOfTableAsync(tableId, currentUser.Id))
+                    return Forbid();
 
-                    if (!isMember) return TypedResults.Forbid();
-                    
-                    var tableHasActiveHand = await db.Tables.AnyAsync(t =>
-                        t.Id == tableId && t.Hands.Any(h => h.CurrentStreet != Street.Finished));
-                    if (tableHasActiveHand) return TypedResults.Forbid();
+                var lastHand = await handRepository.GetLastHandAsync(tableId);
+                if (lastHand is not null && lastHand.CurrentStreet != Street.Finished)
+                    return Forbid();
 
-                    var seat = await db.Seats
-                        .FirstOrDefaultAsync(x => x.Id == seatId && x.TableId == tableId);
+                var seat = await db.Seats
+                    .FirstOrDefaultAsync(x => x.Id == seatId && x.TableId == tableId);
 
-                    if (seat is null) return TypedResults.NotFound();
+                if (seat is null) return NotFound();
 
-                    // The seat is already free.
-                    if (seat.UserId is null) return TypedResults.Ok();
+                // The seat is already free.
+                if (seat.UserId is null) return Ok();
 
-                    // A user can only release their own seat.
-                    if (seat.UserId != currentUser.Id) return TypedResults.Forbid();
+                // A user can only release their own seat.
+                if (seat.UserId != currentUser.Id) return Forbid();
 
-                    seat.UserId = null;
+                seat.UserId = null;
 
-                    await db.SaveChangesAsync();
+                await db.SaveChangesAsync();
 
-                    await publisher.PublishAsync(tableId, new MemberReleasedSeatNotification(currentUser.Id, seatId));
+                await publisher.PublishAsync(tableId, new MemberReleasedSeatNotification(currentUser.Id, seatId));
 
-                    return TypedResults.Ok();
-                })
+                return Ok();
+            })
             .WithSummary("Release a table seat")
             .WithDescription("""
                              Releases a seat currently occupied by the authenticated user.

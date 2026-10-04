@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ChipsPocket.Api\ChipsPocket.Api.csproj" />
+        <ProjectReference Include="..\ChipsPocket.Api\ChipsPocket.Api.csproj"/>
     </ItemGroup>
 
 </Project>

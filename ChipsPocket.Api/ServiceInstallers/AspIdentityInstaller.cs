@@ -1,4 +1,5 @@
-﻿using DiServiceInstaller;
+﻿using ChipsPocket.Domain.Entities;
+using DiServiceInstaller;
 
 namespace ChipsPocket.Api.ServiceInstallers;
 
@@ -6,7 +7,6 @@ public class AspIdentityInstaller : IServiceInstaller
 {
     public void Install(IHostApplicationBuilder builder)
     {
-        
         builder.Services.AddIdentityCore<User>(options =>
             {
                 options.User.RequireUniqueEmail = false;

@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using ChipsPocket.Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ChipsPocket.Api.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User>(options)
 {
+    public DbSet<TableMember> TableMembers { get; init; }
     public DbSet<Hand> Hands { get; init; }
-    public DbSet<Transaction> ChipTransactions { get; init; }
+    public DbSet<Transaction> Transactions { get; init; }
     public DbSet<Seat> Seats { get; init; }
     public DbSet<Table> Tables { get; init; }
 

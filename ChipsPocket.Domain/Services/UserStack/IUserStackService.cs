@@ -1,4 +1,4 @@
-﻿namespace ChipsPocket.Api.Services;
+﻿namespace ChipsPocket.Domain.Services.UserStack;
 
 public interface IUserStackService
 {
@@ -7,4 +7,3 @@ public interface IUserStackService
         string userId,
         CancellationToken cancellationToken = default);
 }
-

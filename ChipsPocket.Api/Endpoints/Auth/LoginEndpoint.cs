@@ -1,4 +1,6 @@
-﻿namespace ChipsPocket.Api.Endpoints.Auth;
+﻿using ChipsPocket.Domain.Entities;
+
+namespace ChipsPocket.Api.Endpoints.Auth;
 
 public sealed record LoginRequest(
     string Username,
@@ -25,14 +27,14 @@ public static class LoginEndpoint
     {
         var user = await userManager.FindByNameAsync(request.Username);
 
-        if (user is null) return TypedResults.Unauthorized();
+        if (user is null) return Unauthorized();
 
         var validPassword = await userManager.CheckPasswordAsync(user, request.Password);
 
-        if (!validPassword) return TypedResults.Unauthorized();
+        if (!validPassword) return Unauthorized();
 
         var response = tokenService.CreateToken(user);
 
-        return TypedResults.Ok(response);
+        return Ok(response);
     }
 }

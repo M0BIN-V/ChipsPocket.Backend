@@ -1,4 +1,7 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.Members.Remove;
+﻿using ChipsPocket.Domain.Contracts;
+using ChipsPocket.Domain.Entities;
+
+namespace ChipsPocket.Api.Endpoints.Table.Members.Remove;
 
 public class RemoveFromMembersEndpoint : IEndpoint
 {
@@ -11,48 +14,41 @@ public class RemoveFromMembersEndpoint : IEndpoint
                     Ok>> (
                     [FromRoute] Guid tableId,
                     [FromRoute] string memberId,
-                    [FromServices] AppDbContext db,
+                    [FromServices] ISeatRepository seatRepository,
+                    [FromServices] ITableRepository tableRepository,
+                    [FromServices] IMemberService memberService,
+                    [FromServices] IHandRepository handRepository,
                     [FromServices] ICurrentUser currentUser) =>
                 {
-                    var table = await db.Tables
-                        .Include(t => t.Members)
-                        .SingleOrDefaultAsync(t => t.Id == tableId);
+                    var lastHand = await handRepository.GetLastHandAsync(tableId);
+                    if (lastHand is not null && lastHand.CurrentStreet != Street.Finished)
+                        return Forbid();
 
-                    if (table is null)
-                        return TypedResults.NotFound("Table not found");
+                    var table = await tableRepository.GetTableAsync(tableId);
+                    if (table is null) return NotFound("Table not found");
 
                     var isManager = table.ManagerId == currentUser.Id;
                     var removingSelf = memberId == currentUser.Id;
 
-                    if (!isManager && !removingSelf) return TypedResults.Forbid();
+                    if (!isManager && !removingSelf) return Forbid();
 
-                    if (isManager && removingSelf) return TypedResults.Forbid();
+                    if (isManager && removingSelf) return Forbid();
 
-                    var member = table.Members
-                        .SingleOrDefault(u => u.UserId == memberId);
+                    var tableMembers = await memberService.GetTableMembersAsync(tableId);
 
-                    if (member is null)
-                        return TypedResults.NotFound("User is not in the members");
+                    if (tableMembers.All(m => m.UserId != memberId))
+                        return NotFound("User is not in the members");
 
-                    var claimedSeat = await db.Seats
-                        .SingleOrDefaultAsync(s =>
-                            s.TableId == tableId &&
-                            s.UserId == memberId);
+                    await seatRepository.ReleaseSeatAsync(tableId, memberId);
+                    await memberService.RemoveAsync(tableId, memberId);
 
-                    if (claimedSeat is not null)
-                        claimedSeat.UserId = null;
-
-                    table.Members.Remove(member);
-
-                    await db.SaveChangesAsync();
-
-                    return TypedResults.Ok();
+                    return Ok();
                 })
             .WithSummary("Remove a user from a table")
             .WithDescription("""
                              Removes a user from the specified table.
 
-                             A table manager can remove any user from the table except themselves.
+                             A table managerService can remove any user from the table except themselves.
                              A regular user can only remove themselves from the table players.
 
                              If the user has a claimed seat at the table, the seat is released

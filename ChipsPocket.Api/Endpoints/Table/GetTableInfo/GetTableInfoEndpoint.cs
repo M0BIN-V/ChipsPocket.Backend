@@ -1,4 +1,7 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.GetTableInfo;
+﻿using ChipsPocket.Domain.Contracts;
+using ChipsPocket.Domain.Entities;
+
+namespace ChipsPocket.Api.Endpoints.Table.GetTableInfo;
 
 public record ViewUserDto(string Username);
 
@@ -10,10 +13,7 @@ public record ViewActiveHandDto(
     Guid DealerSeatId,
     Guid SmallBlindSeatId,
     Guid BigBlindSeatId,
-    Street CurrentStreet,
-    WaitingForActionDto WaitingForActionDto);
-
-public record WaitingForActionDto(Guid SeatId, WaitingForActionType Type);
+    Street CurrentStreet);
 
 public record ViewTableInfoDto(
     Guid Id,
@@ -30,14 +30,14 @@ public class GetTableInfoEndpoint : IEndpoint
                 ForbidHttpResult,
                 Ok<ViewTableInfoDto>>> (
                 [FromRoute] Guid tableId,
+                [FromServices] ITableRepository tableRepository,
                 [FromServices] AppDbContext db,
+                [FromServices] ISeatRepository seatRepository,
+                [FromServices] IMemberService memberService,
                 [FromServices] ICurrentUser currentUser) =>
             {
-                var userIsInTablePlayers = await db.Tables
-                    .AnyAsync(t => t.Id == tableId && t.Members
-                        .Any(u => u.User.Id == currentUser.Id));
-
-                if (!userIsInTablePlayers) return TypedResults.Forbid();
+                if (!await memberService.IsMemberOfTableAsync(tableId, currentUser.Id))
+                    return Forbid();
 
                 var table = await db.Tables
                     .Where(t => t.Id == tableId)
@@ -59,15 +59,12 @@ public class GetTableInfoEndpoint : IEndpoint
                                 h.DealerSeatId,
                                 h.SmallBlindSeatId,
                                 h.BigBlindSeatId,
-                                h.CurrentStreet,
-                                new WaitingForActionDto(
-                                    h.WaitingForAction.SeatId,
-                                    h.WaitingForAction.Type)))
+                                h.CurrentStreet))
                             .SingleOrDefault()
                     ))
                     .SingleAsync();
 
-                return TypedResults.Ok(table);
+                return Ok(table);
             })
             .WithSummary("Get table information")
             .WithDescription("""

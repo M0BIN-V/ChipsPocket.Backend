@@ -1,6 +1,6 @@
-﻿using ChipsPocket.Api.Data.Entities.Abstractions;
+﻿using ChipsPocket.Domain.Entities.Abstractions;
 
-namespace ChipsPocket.Api.Data.Entities;
+namespace ChipsPocket.Domain.Entities;
 
 public class Pot : Entity
 {

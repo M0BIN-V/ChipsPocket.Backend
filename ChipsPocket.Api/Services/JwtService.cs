@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using ChipsPocket.Domain.Entities;
 
 namespace ChipsPocket.Api.Services;
 

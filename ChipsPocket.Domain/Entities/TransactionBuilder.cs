@@ -1,4 +1,4 @@
-﻿namespace ChipsPocket.Api.Data.Entities;
+﻿namespace ChipsPocket.Domain.Entities;
 
 public sealed class TransactionBuilder
 {
@@ -68,7 +68,7 @@ public sealed class TransactionBuilder
         return this;
     }
 
-    public TransactionBuilder AddValue(int value)
+    public TransactionBuilder WithAmount(int value)
     {
         if (value < 1) throw new ArgumentOutOfRangeException(nameof(value), "Value must be greater than zero.");
 

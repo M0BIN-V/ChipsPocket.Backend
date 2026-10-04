@@ -1,4 +1,6 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.Members.GetJoinToken;
+﻿using ChipsPocket.Domain.Contracts;
+
+namespace ChipsPocket.Api.Endpoints.Table.Members.GetJoinToken;
 
 public record GetJoinTokenResponse(string Token);
 
@@ -8,20 +10,24 @@ public class GetJoinTokenEndpoint : IEndpoint
     {
         group.MapGet("join-token", async Task<Results<
                 Ok<GetJoinTokenResponse>,
+                ForbidHttpResult,
                 NotFound<string>>> (
                 [FromRoute] Guid tableId,
                 [FromServices] ITableJoinTokenService tokenService,
-                [FromServices] AppDbContext db,
+                [FromServices] ITableRepository tableRepository,
+                [FromServices] IMemberService memberService,
                 [FromServices] ICurrentUser currentUser) =>
             {
-                var exists = await db.Tables
-                    .AnyAsync(t => t.Id == tableId && t.Members.Any(u => u.UserId == currentUser.Id));
+                var table = await tableRepository.GetTableAsync(tableId);
+                if (table is null) return NotFound("table not found");
 
-                if (!exists) return TypedResults.NotFound("table not found");
+                var isUserMemberOfTable = await memberService.IsMemberOfTableAsync(tableId, currentUser.Id);
+
+                if (!isUserMemberOfTable) return Forbid();
 
                 var token = tokenService.Create(tableId);
 
-                return TypedResults.Ok(new GetJoinTokenResponse(token));
+                return Ok(new GetJoinTokenResponse(token));
             })
             .WithSummary("Get table join token")
             .WithDescription("""

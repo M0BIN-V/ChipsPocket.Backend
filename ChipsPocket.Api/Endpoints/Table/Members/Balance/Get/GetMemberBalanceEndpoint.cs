@@ -1,4 +1,6 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Get;
+﻿using ChipsPocket.Domain.Services.UserStack;
+
+namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Get;
 
 public sealed record GetMemberBalanceResponse(int Value);
 
@@ -19,7 +21,7 @@ public class GetMemberBalanceEndpoint : IEndpoint
                     memberId,
                     cancellationToken);
 
-                return TypedResults.Ok(new GetMemberBalanceResponse(balance));
+                return Ok(new GetMemberBalanceResponse(balance));
             })
             .WithName("GetMemberBalance")
             .WithSummary("Get a table member's balance")

@@ -1,4 +1,6 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.GetMyTables;
+﻿using ChipsPocket.Domain.Contracts;
+
+namespace ChipsPocket.Api.Endpoints.Table.GetMyTables;
 
 public class GetMyTablesEndpoint : IEndpoint
 {
@@ -6,22 +8,21 @@ public class GetMyTablesEndpoint : IEndpoint
     {
         group.MapGet("my", async Task<Ok<List<GetMyTablesResponse>>> (
                 ICurrentUser currentUser,
-                AppDbContext db,
-                CancellationToken cancellationToken) =>
+                IMemberService memberService,
+                ITableRepository tableRepository) =>
             {
                 var userId = currentUser.Id;
 
-                var tables = await db.Tables
-                    .Where(t => t.Members.Any(p => p.UserId == userId))
-                    .Select(t => new GetMyTablesResponse(
-                        t.Id,
-                        t.Name,
-                        t.CreatedAt
-                    )).ToListAsync(cancellationToken);
+                var userTableIds = await memberService.GetTableIdsAsync(userId);
 
-                tables = tables.OrderByDescending(t => t.CreatedAt).ToList();
+                var tables = await tableRepository.GetTablesAsync(userTableIds);
 
-                return TypedResults.Ok(tables);
+                var response = tables
+                    .OrderByDescending(t => t.CreatedAt)
+                    .Select(t => new GetMyTablesResponse(t.Id, t.Name, t.CreatedAt))
+                    .ToList();
+
+                return Ok(response);
             })
             .WithName("GetMyTables")
             .WithSummary("Get tables the current user has joined")

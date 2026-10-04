@@ -10,25 +10,24 @@ public class GetMembersEndpoint : IEndpoint
                 ForbidHttpResult,
                 Ok<IEnumerable<MemberDto>>>> (
                 [FromRoute] Guid tableId,
-                [FromServices] AppDbContext db,
+                [FromServices] IUserRepository userRepository,
+                [FromServices] IMemberService memberService,
                 [FromServices] ICurrentUser currentUser) =>
             {
-                var isMember = await db.Tables
-                    .AnyAsync(t =>
-                        t.Id == tableId &&
-                        t.Members.Any(u => u.UserId == currentUser.Id));
+                var isMember = await memberService.IsMemberOfTableAsync(tableId, currentUser.Id);
 
-                if (!isMember) return TypedResults.Forbid();
+                if (!isMember) return Forbid();
 
-                var users = await db.Tables
-                    .Where(t => t.Id == tableId)
-                    .SelectMany(t => t.Members)
-                    .Select(x => new MemberDto(
-                        x.User.Id,
-                        x.User.UserName!))
-                    .ToListAsync();
+                var members = await memberService.GetTableMembersAsync(tableId);
+                var memberUserIds = members.Select(m => m.UserId)
+                    .ToList();
 
-                return TypedResults.Ok<IEnumerable<MemberDto>>(users);
+                var users = await userRepository.GetUsersAsync(memberUserIds);
+
+                var response = users
+                    .Select(u => new MemberDto(u.Id, u.UserName!));
+
+                return Ok(response);
             })
             .WithSummary("Get table players")
             .WithDescription("""

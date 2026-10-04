@@ -1,4 +1,7 @@
-﻿namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Deduct;
+﻿using ChipsPocket.Domain.Entities;
+using ChipsPocket.Domain.Services.UserStack;
+
+namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Deduct;
 
 public record DeductMemberBalanceRequest(int Value);
 
@@ -24,43 +27,42 @@ public class DeductMemberBalanceEndpoint : IEndpoint
                 [FromRoute] string memberId,
                 [FromRoute] Guid tableId,
                 [FromServices] AppDbContext db,
+                [FromServices] IMemberService memberService,
                 [FromServices] IUserStackService userStackService,
                 [FromServices] ICurrentUser currentUser) =>
             {
                 var userIsTableManager = await db.Tables
                     .AnyAsync(t => t.Id == tableId && t.ManagerId == currentUser.Id);
 
-                if (!userIsTableManager) return TypedResults.Forbid();
+                if (!userIsTableManager) return Forbid();
 
-                var userIsTableMember = await db.Tables
-                    .AnyAsync(t => t.Id == tableId && t.Members
-                        .Any(u => u.UserId == memberId));
+                var userIsTableMember = await memberService.IsMemberOfTableAsync(tableId, memberId);
 
-                if (!userIsTableMember) return TypedResults.NotFound("source user not found");
+                if (!userIsTableMember) return NotFound("source user not found");
 
                 var memberBalance = await userStackService.GetBalanceAsync(tableId, memberId);
 
                 var userHasEnoughChips = memberBalance >= request.Value;
 
-                if (!userHasEnoughChips) return TypedResults.BadRequest("user does not have enough balance");
+                if (!userHasEnoughChips) return BadRequest("user does not have enough balance");
 
                 var transaction = TransactionBuilder
                     .Create(tableId)
-                    .AddValue(request.Value)
+                    .WithAmount(request.Value)
                     .FromUser(memberId)
                     .ToShop()
                     .Build();
 
-                await db.ChipTransactions.AddAsync(transaction);
+                await db.Transactions.AddAsync(transaction);
                 await db.SaveChangesAsync();
 
-                return TypedResults.Ok();
+                return Ok();
             })
             .WithName("DeductMemberBalance")
             .WithSummary("Deduct balance from a table member")
             .WithDescription(
                 "Deducts the specified amount from a table member's balance. " +
-                "Only the manager of the table can perform this operation. " +
+                "Only the managerService of the table can perform this operation. " +
                 "The member must have sufficient balance.")
             .Validate<DeductMemberBalanceRequest>()
             .RequireAuthorization();

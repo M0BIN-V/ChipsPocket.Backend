@@ -1,4 +1,6 @@
 ﻿using ChipsPocket.Api.Notifications.Table;
+using ChipsPocket.Domain.Contracts;
+using ChipsPocket.Domain.Entities;
 
 namespace ChipsPocket.Api.Endpoints.Table.ClaimSeat;
 
@@ -14,28 +16,28 @@ public class ClaimSeatEndpoint : IEndpoint
                     Ok>> (
                     [FromRoute] Guid tableId,
                     [FromRoute] Guid seatId,
+                    [FromServices] ITableRepository tableRepository,
                     [FromServices] ITableNotificationPublisher publisher,
                     [FromServices] AppDbContext db,
+                    [FromServices] IMemberService memberService,
+                    [FromServices] IHandRepository handRepository,
                     [FromServices] ICurrentUser currentUser) =>
                 {
+                    var lastHand = await handRepository.GetLastHandAsync(tableId);
+                    if (lastHand is not null && lastHand.CurrentStreet != Street.Finished)
+                        return Forbid();
+
                     var user = await db.Users.SingleAsync(u => u.Id == currentUser.Id);
 
-                    var isMember = await db.Tables
-                        .AnyAsync(t =>
-                            t.Id == tableId &&
-                            t.Members.Any(x =>
-                                x.UserId == user.Id));
-
-
-                    if (!isMember) return TypedResults.Forbid();
+                    if (!await memberService.IsMemberOfTableAsync(tableId, user.Id)) return Forbid();
 
                     var newSeat = await db.Seats
                         .FirstOrDefaultAsync(x => x.Id == seatId && x.TableId == tableId);
 
-                    if (newSeat is null) return TypedResults.NotFound();
+                    if (newSeat is null) return NotFound();
 
                     if (newSeat.UserId is not null && newSeat.UserId != user.Id)
-                        return TypedResults.Conflict("This seat is already occupied.");
+                        return Conflict("This seat is already occupied.");
 
                     // Find the user's current seat, if any.
                     var currentSeat = await db.Seats.FirstOrDefaultAsync(x =>
@@ -43,7 +45,7 @@ public class ClaimSeatEndpoint : IEndpoint
                         x.UserId == user.Id);
 
                     // Already sitting on this seat.
-                    if (currentSeat?.Id == newSeat.Id) return TypedResults.Ok();
+                    if (currentSeat?.Id == newSeat.Id) return Ok();
 
                     // Leave the previous seat.
                     currentSeat?.UserId = null;
@@ -56,7 +58,7 @@ public class ClaimSeatEndpoint : IEndpoint
                     var notification = new MemberClaimedSeatNotification(seatId, user.Id, user.UserName!);
                     await publisher.PublishAsync(tableId, notification);
 
-                    return TypedResults.Ok();
+                    return Ok();
                 })
             .WithSummary("Claim a table seat")
             .WithDescription("""

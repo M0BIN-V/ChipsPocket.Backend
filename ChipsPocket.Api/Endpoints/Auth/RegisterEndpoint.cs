@@ -1,4 +1,6 @@
-﻿namespace ChipsPocket.Api.Endpoints.Auth;
+﻿using ChipsPocket.Domain.Entities;
+
+namespace ChipsPocket.Api.Endpoints.Auth;
 
 public sealed record RegisterRequest(string Username, string Password);
 
@@ -22,7 +24,7 @@ public static class RegisterEndpoint
     {
         var existingUser = await userManager.FindByNameAsync(request.Username);
 
-        if (existingUser is not null) return TypedResults.Conflict("Username is already taken.");
+        if (existingUser is not null) return Conflict("Username is already taken.");
 
         var user = new User
         {
@@ -39,9 +41,9 @@ public static class RegisterEndpoint
                     x => x.Key,
                     x => x.Select(e => e.Description).ToArray());
 
-            return TypedResults.ValidationProblem(errors);
+            return ValidationProblem(errors);
         }
 
-        return TypedResults.Ok();
+        return Ok();
     }
 }

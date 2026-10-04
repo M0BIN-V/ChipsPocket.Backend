@@ -13,3 +13,4 @@ global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.IdentityModel.Tokens;
+global using static Microsoft.AspNetCore.Http.TypedResults;
