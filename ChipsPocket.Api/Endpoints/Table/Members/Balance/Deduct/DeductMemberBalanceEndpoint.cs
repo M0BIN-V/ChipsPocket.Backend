@@ -1,6 +1,6 @@
 ﻿using ChipsPocket.Api.Infra.Persistence;
 using ChipsPocket.Domain.Contracts;
-using ChipsPocket.Domain.Entities;
+using ChipsPocket.Domain.Services.Shop;
 using ChipsPocket.Domain.Services.UserStack;
 
 namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Deduct;
@@ -25,13 +25,14 @@ public class DeductMemberBalanceEndpoint : IEndpoint
                 NotFound<string>,
                 BadRequest<string>,
                 Ok>> (
-                [FromBody] DeductMemberBalanceRequest request,
-                [FromRoute] string memberId,
-                [FromRoute] Guid tableId,
-                [FromServices] AppDbContext db,
-                [FromServices] IMembersRepository membersRepository,
-                [FromServices] IUserStackService userStackService,
-                [FromServices] ICurrentUser currentUser) =>
+                DeductMemberBalanceRequest request,
+                string memberId,
+                Guid tableId,
+                AppDbContext db,
+                IShopService shopService,
+                IMembersRepository membersRepository,
+                IUserStackService userStackService,
+                ICurrentUser currentUser) =>
             {
                 var userIsTableManager = await db.Tables
                     .AnyAsync(t => t.Id == tableId && t.ManagerId == currentUser.Id);
@@ -48,14 +49,8 @@ public class DeductMemberBalanceEndpoint : IEndpoint
 
                 if (!userHasEnoughChips) return BadRequest("user does not have enough balance");
 
-                var transaction = TransactionBuilder
-                    .Create(tableId)
-                    .WithAmount(request.Value)
-                    .FromUser(memberId)
-                    .ToShop()
-                    .Build();
+                shopService.SellChipsAsync(tableId, memberId, request.Value);
 
-                await db.Transactions.AddAsync(transaction);
                 await db.SaveChangesAsync();
 
                 return Ok();

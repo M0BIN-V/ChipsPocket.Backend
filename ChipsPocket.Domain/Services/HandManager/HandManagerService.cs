@@ -1,11 +1,12 @@
 ﻿using ChipsPocket.Domain.Contracts;
 using ChipsPocket.Domain.Entities;
+using ChipsPocket.Domain.Services.HandActionManager;
 using ChipsPocket.Domain.Services.UserStack;
 
 namespace ChipsPocket.Domain.Services.HandManager;
 
 public class HandManagerService(
-    ITransactionRepository transactionRepository,
+    IHandActionManager actionManager,
     IUserStackService userStackService,
     IHandRepository handRepository,
     ISeatRepository seatRepository,
@@ -26,13 +27,9 @@ public class HandManagerService(
         if (table is null) throw new NullReferenceException("table not found");
         foreach (var claimedSeat in claimedSeats)
         {
-            var requiredAmount = table.BigBlindAmount;
-
             var userBalance = await userStackService.GetBalanceAsync(tableId, claimedSeat.UserId!);
 
-            if (userBalance < requiredAmount)
-                return (false,
-                    $"User {claimedSeat.UserId} does not have enough balance to cover the required amount of {requiredAmount}.");
+            if (userBalance < 0) return (false, $"User {claimedSeat.UserId} does not have enough balance.");
         }
 
         return (true, string.Empty);
@@ -40,44 +37,32 @@ public class HandManagerService(
 
     public async Task<Hand> SetupHandAsync(Guid tableId)
     {
-        var claimedSeat = await seatRepository.GetClaimedSeatsAsync(tableId);
+        var claimedSeats = await seatRepository.GetClaimedSeatsAsync(tableId);
 
-        var dealerSeat = SetupDealer(claimedSeat, await GetLastHandDealerSeatOrder(tableId));
-        var smallBlindSeat = SetupSmallBlind(claimedSeat, dealerSeat);
-        var bigBlindSeat = SetupBigBlind(claimedSeat, smallBlindSeat);
+        var dealerSeat = SetupDealer(claimedSeats, await GetLastHandDealerSeatOrder(tableId));
+        var smallBlindSeat = SetupSmallBlind(claimedSeats, dealerSeat);
+        var bigBlindSeat = SetupBigBlind(claimedSeats, smallBlindSeat);
+
+        var table = await tableRepository.GetTableAsync(tableId);
+
+        var smallBlindAmount = table?.SmallBlindAmount ?? throw new Exception("table not found");
+        var bigBlindAmount = smallBlindAmount * 2;
 
         var hand = new Hand
         {
             TableId = tableId,
-            CreatedAtUtc = DateTime.UtcNow,
-            CurrentStreet = Street.PreFlop,
             DealerSeatId = dealerSeat.Id,
             SmallBlindSeatId = smallBlindSeat.Id,
-            BigBlindSeatId = bigBlindSeat.Id
+            BigBlindSeatId = bigBlindSeat.Id,
+            CurrentStreet = Street.PreFlop,
+            MinimumRaise = bigBlindAmount * 2,
+            NextActorSeatId = NextClaimedSeat(claimedSeats, bigBlindSeat.Order).Id
         };
 
+        await actionManager.PostSmallBlindAsync(hand.Id, smallBlindSeat.Id, smallBlindAmount);
+        await actionManager.PostBigBlindAsync(hand.Id, bigBlindSeat.Id, bigBlindAmount);
+
         return hand;
-    }
-
-    private async Task PostBlinds(Hand hand, Guid potId, int smallBlindAmount)
-    {
-        var smallBlindSeat = await seatRepository.GetSeatAsync(hand.TableId, hand.SmallBlindSeatId);
-
-        var smallBlindTransaction = TransactionBuilder.Create(hand.TableId)
-            .FromUser(smallBlindSeat!.UserId!)
-            .ToPot(potId)
-            .WithAmount(smallBlindAmount)
-            .Build();
-
-        var bigBlindSeat = await seatRepository.GetSeatAsync(hand.TableId, hand.BigBlindSeatId);
-        var bigBlindTransaction = TransactionBuilder.Create(hand.TableId)
-            .FromUser(bigBlindSeat!.UserId!)
-            .ToPot(potId)
-            .WithAmount(smallBlindAmount * 2)
-            .Build();
-
-        transactionRepository.Add(smallBlindTransaction);
-        transactionRepository.Add(bigBlindTransaction);
     }
 
     private async Task<int?> GetLastHandDealerSeatOrder(Guid tableId)

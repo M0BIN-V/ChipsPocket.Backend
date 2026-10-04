@@ -18,8 +18,8 @@ public class GetMyTablesEndpoint : IEndpoint
                 var tables = await tableRepository.GetTablesAsync(userTableIds);
 
                 var response = tables
-                    .OrderByDescending(t => t.CreatedAt)
-                    .Select(t => new GetMyTablesResponse(t.Id, t.Name, t.CreatedAt))
+                    .OrderByDescending(t => t.CreatedAtUtc)
+                    .Select(t => new GetMyTablesResponse(t.Id, t.Name, t.CreatedAtUtc))
                     .ToList();
 
                 return Ok(response);

@@ -1,5 +1,4 @@
-﻿using ChipsPocket.Api.Infra.Persistence.EntityConfigs;
-using ChipsPocket.Domain.Entities;
+﻿using ChipsPocket.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ChipsPocket.Api.Infra.Persistence;
@@ -11,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<Transaction> Transactions { get; init; }
     public DbSet<Seat> Seats { get; init; }
     public DbSet<Table> Tables { get; init; }
+    public DbSet<HandAction> HandActions { get; init; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

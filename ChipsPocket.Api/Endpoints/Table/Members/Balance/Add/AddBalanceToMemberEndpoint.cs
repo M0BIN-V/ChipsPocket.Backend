@@ -1,6 +1,6 @@
 ﻿using ChipsPocket.Api.Infra.Persistence;
 using ChipsPocket.Domain.Contracts;
-using ChipsPocket.Domain.Entities;
+using ChipsPocket.Domain.Services.Shop;
 
 namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Add;
 
@@ -23,13 +23,14 @@ public class AddBalanceToMemberEndpoint : IEndpoint
                 ForbidHttpResult,
                 NotFound<string>,
                 Ok>> (
-                [FromBody] AddBalanceRequest request,
-                [FromRoute] string memberId,
-                [FromRoute] Guid tableId,
-                [FromServices] IMembersRepository membersRepository,
-                [FromServices] ITableRepository tableRepository,
-                [FromServices] AppDbContext db,
-                [FromServices] ICurrentUser currentUser) =>
+                AddBalanceRequest request,
+                string memberId,
+                Guid tableId,
+                IShopService shopService,
+                IMembersRepository membersRepository,
+                ITableRepository tableRepository,
+                AppDbContext db,
+                ICurrentUser currentUser) =>
             {
                 var managerId = await tableRepository.GetManagerIdAsync(tableId);
                 if (managerId != currentUser.Id) return Forbid();
@@ -37,14 +38,8 @@ public class AddBalanceToMemberEndpoint : IEndpoint
                 if (!await membersRepository.IsMemberOfTableAsync(tableId, memberId))
                     return NotFound("destination user not found");
 
-                var transaction = TransactionBuilder
-                    .Create(tableId)
-                    .WithAmount(request.Value)
-                    .ToUser(memberId)
-                    .FromShop()
-                    .Build();
+                shopService.BuyChipsAsync(tableId, memberId, request.Value);
 
-                await db.Transactions.AddAsync(transaction);
                 await db.SaveChangesAsync();
                 return Ok();
             })

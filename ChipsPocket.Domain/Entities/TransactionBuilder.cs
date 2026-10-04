@@ -1,6 +1,6 @@
 ﻿namespace ChipsPocket.Domain.Entities;
 
-public sealed class TransactionBuilder
+internal sealed class TransactionBuilder
 {
     private readonly Transaction _transaction;
 

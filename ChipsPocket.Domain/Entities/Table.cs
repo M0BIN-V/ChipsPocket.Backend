@@ -23,8 +23,6 @@ public class Table : Entity
 
     public required string Name { get; set; }
 
-    public DateTimeOffset CreatedAt { get; private set; }
-
     public static Table Create(string name, string creatorId, int smallBlind)
     {
         var id = Guid.CreateVersion7();
@@ -35,7 +33,6 @@ public class Table : Entity
             Id = id,
             CreatedById = creatorId,
             Name = name,
-            CreatedAt = DateTimeOffset.UtcNow
         };
     }
 }

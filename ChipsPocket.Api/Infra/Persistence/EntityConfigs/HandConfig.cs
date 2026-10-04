@@ -22,5 +22,9 @@ public class HandConfig : IEntityTypeConfiguration<Hand>
         builder.HasOne<Seat>()
             .WithMany()
             .HasForeignKey(h => h.DealerSeatId);
+
+        builder.HasOne(h => h.Pot)
+            .WithOne()
+            .HasForeignKey<Hand>(h => h.PotId);
     }
 }

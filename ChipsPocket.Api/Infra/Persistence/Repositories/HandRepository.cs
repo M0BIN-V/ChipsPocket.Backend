@@ -17,4 +17,14 @@ public class HandRepository(AppDbContext db) : IHandRepository
         var lastHand = await GetLastHandAsync(tableId);
         return lastHand is not null && lastHand.CurrentStreet != Street.Finished;
     }
+
+    public Task<Hand?> GetAsync(Guid handId)
+    {
+        return db.Hands.SingleOrDefaultAsync(h => h.Id == handId);
+    }
+
+    public void AddHand(Hand hand)
+    {
+        db.Hands.Add(hand);
+    }
 }

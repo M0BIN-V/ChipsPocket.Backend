@@ -1,5 +1,6 @@
 ﻿using ChipsPocket.Api.Infra.Persistence.Repositories;
 using ChipsPocket.Domain.Contracts;
+using ChipsPocket.Domain.Services.HandActionManager;
 using ChipsPocket.Domain.Services.HandManager;
 using ChipsPocket.Domain.Services.UserStack;
 using DiServiceInstaller;
@@ -13,6 +14,8 @@ public class ServicesInstaller : IServiceInstaller
         builder.Services.AddHttpContextAccessor();
 
         builder.Services
+            .AddScoped<IHandActionRepository,HandActionRepository>()
+            .AddScoped<IHandActionManager , HandActionManager>()
             .AddScoped<IUserStackService, UserStackService>()
             .AddScoped<ITableRepository, TableRepository>()
             .AddScoped<ICurrentUser, CurrentUser>()

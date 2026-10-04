@@ -1,7 +1,6 @@
 ﻿using ChipsPocket.Api.Infra.Persistence;
 using ChipsPocket.Api.Notifications.Table;
 using ChipsPocket.Domain.Contracts;
-using ChipsPocket.Domain.Services;
 using ChipsPocket.Domain.Services.HandManager;
 
 namespace ChipsPocket.Api.Endpoints.Table.Hands.StartNewHand;
@@ -21,12 +20,13 @@ public class StartHandEndpoint : IEndpoint
             ForbidHttpResult,
             BadRequest<string>,
             Ok<ViewCreateHandDto>>> (
-            [FromRoute] Guid tableId,
-            [FromServices] IHandManagerService managerService,
-            [FromServices] ITableRepository tableRepository,
-            [FromServices] ITableNotificationPublisher publisher,
-            [FromServices] ICurrentUser currentUser,
-            [FromServices] AppDbContext db) =>
+            Guid tableId,
+            IHandRepository handRepo,
+            IHandManagerService managerService,
+            ITableRepository tableRepository,
+            ITableNotificationPublisher publisher,
+            ICurrentUser currentUser,
+            AppDbContext db) =>
         {
             //validate table
             var table = await tableRepository.GetTableAsync(tableId);
@@ -41,7 +41,8 @@ public class StartHandEndpoint : IEndpoint
 
             var hand = await managerService.SetupHandAsync(tableId);
 
-            await db.Hands.AddAsync(hand);
+            handRepo.AddHand(hand);
+
             await db.SaveChangesAsync();
 
             var response = new ViewCreateHandDto(
