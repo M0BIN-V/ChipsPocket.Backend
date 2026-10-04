@@ -5,17 +5,6 @@ using ChipsPocket.Domain.Services.UserStack;
 
 namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Deduct;
 
-public record DeductMemberBalanceRequest(int Value);
-
-public class DeductMemberBalanceRequestValidator : AbstractValidator<DeductMemberBalanceRequest>
-{
-    public DeductMemberBalanceRequestValidator()
-    {
-        RuleFor(r => r.Value)
-            .GreaterThan(0);
-    }
-}
-
 public class DeductMemberBalanceEndpoint : IEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
@@ -25,7 +14,7 @@ public class DeductMemberBalanceEndpoint : IEndpoint
                 NotFound<string>,
                 BadRequest<string>,
                 Ok>> (
-                DeductMemberBalanceRequest request,
+                [FromQuery] int value,
                 string memberId,
                 Guid tableId,
                 AppDbContext db,
@@ -34,6 +23,8 @@ public class DeductMemberBalanceEndpoint : IEndpoint
                 IUserStackService userStackService,
                 ICurrentUser currentUser) =>
             {
+                if (value < 0) return BadRequest("value must be positive");
+
                 var userIsTableManager = await db.Tables
                     .AnyAsync(t => t.Id == tableId && t.ManagerId == currentUser.Id);
 
@@ -45,11 +36,11 @@ public class DeductMemberBalanceEndpoint : IEndpoint
 
                 var memberBalance = await userStackService.GetBalanceAsync(tableId, memberId);
 
-                var userHasEnoughChips = memberBalance >= request.Value;
+                var userHasEnoughChips = memberBalance >= value;
 
                 if (!userHasEnoughChips) return BadRequest("user does not have enough balance");
 
-                shopService.SellChipsAsync(tableId, memberId, request.Value);
+                shopService.SellChips(tableId, memberId, value);
 
                 await db.SaveChangesAsync();
 
@@ -61,7 +52,6 @@ public class DeductMemberBalanceEndpoint : IEndpoint
                 "Deducts the specified amount from a table member's balance. " +
                 "Only the managerService of the table can perform this operation. " +
                 "The member must have sufficient balance.")
-            .Validate<DeductMemberBalanceRequest>()
             .RequireAuthorization();
     }
 }

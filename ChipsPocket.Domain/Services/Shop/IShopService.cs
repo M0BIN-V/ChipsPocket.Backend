@@ -2,7 +2,7 @@
 
 public interface IShopService
 {
-    public void BuyChipsAsync(Guid tableId, string userId, int amount);
+    public void BuyChips(Guid tableId, string userId, int amount);
 
-    public void SellChipsAsync(Guid tableId, string userId, int amount);
+    public void SellChips(Guid tableId, string userId, int amount);
 }

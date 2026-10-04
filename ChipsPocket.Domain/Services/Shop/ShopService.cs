@@ -5,7 +5,7 @@ namespace ChipsPocket.Domain.Services.Shop;
 
 public class ShopService(ITransactionRepository transactionRepo) : IShopService
 {
-    public void BuyChipsAsync(Guid tableId, string userId, int amount)
+    public void BuyChips(Guid tableId, string userId, int amount)
     {
         var transaction = TransactionBuilder
             .Create(tableId)
@@ -17,7 +17,7 @@ public class ShopService(ITransactionRepository transactionRepo) : IShopService
         transactionRepo.Add(transaction);
     }
 
-    public void SellChipsAsync(Guid tableId, string userId, int amount)
+    public void SellChips(Guid tableId, string userId, int amount)
     {
         var transaction = TransactionBuilder
             .Create(tableId)

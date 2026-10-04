@@ -38,7 +38,7 @@ public class AddBalanceToMemberEndpoint : IEndpoint
                 if (!await membersRepository.IsMemberOfTableAsync(tableId, memberId))
                     return NotFound("destination user not found");
 
-                shopService.BuyChipsAsync(tableId, memberId, request.Value);
+                shopService.BuyChips(tableId, memberId, request.Value);
 
                 await db.SaveChangesAsync();
                 return Ok();
