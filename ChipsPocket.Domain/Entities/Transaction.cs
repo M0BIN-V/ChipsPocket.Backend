@@ -23,7 +23,6 @@ public class Transaction : Entity
     public bool ToShop { get; private set; }
 
     public int Value { get; private set; }
-    public DateTimeOffset CreatedAtUtc { get; set; }
 
     internal void SetFromUser(string userId)
     {

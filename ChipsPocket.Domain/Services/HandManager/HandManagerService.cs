@@ -6,7 +6,6 @@ using ChipsPocket.Domain.Services.UserStack;
 namespace ChipsPocket.Domain.Services.HandManager;
 
 public class HandManagerService(
-    IHandActionManager actionManager,
     IUserStackService userStackService,
     IHandRepository handRepository,
     ISeatRepository seatRepository,
@@ -29,7 +28,7 @@ public class HandManagerService(
         {
             var userBalance = await userStackService.GetBalanceAsync(tableId, claimedSeat.UserId!);
 
-            if (userBalance < 0) return (false, $"User {claimedSeat.UserId} does not have enough balance.");
+            if (userBalance <= 0) return (false, $"User {claimedSeat.UserId} does not have enough balance.");
         }
 
         return (true, string.Empty);
@@ -58,9 +57,6 @@ public class HandManagerService(
             MinimumRaise = bigBlindAmount * 2,
             NextActorSeatId = NextClaimedSeat(claimedSeats, bigBlindSeat.Order).Id
         };
-
-        await actionManager.PostSmallBlindAsync(hand.Id, smallBlindSeat.Id, smallBlindAmount);
-        await actionManager.PostBigBlindAsync(hand.Id, bigBlindSeat.Id, bigBlindAmount);
 
         return hand;
     }

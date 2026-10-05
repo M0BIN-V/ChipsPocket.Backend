@@ -11,13 +11,9 @@ public class HandActionManager(
     IUserStackService userStackService,
     IHandRepository handRepo) : IHandActionManager
 {
-    public async Task PostSmallBlindAsync(Guid handId, Guid seatId, int amount)
+    public async Task PostSmallBlindAsync(Hand hand, int amount)
     {
-        var hand = await handRepo.GetAsync(handId);
-
-        if (hand is null) throw new InvalidOperationException("Hand not found.");
-
-        var seat = await seatRepo.GetSeatAsync(hand.TableId, seatId);
+        var seat = await seatRepo.GetSeatAsync(hand.TableId, hand.SmallBlindSeatId);
 
         if (seat is null) throw new InvalidOperationException("Seat not found.");
 
@@ -27,9 +23,9 @@ public class HandActionManager(
 
         var action = new HandAction
         {
-            HandId = handId,
+            HandId = hand.Id,
             Street = Street.PreFlop,
-            ActorSeatId = seatId,
+            ActorSeatId = hand.SmallBlindSeatId,
             Type = HandActionType.PostSmallBlind,
             Amount = amount,
             IsAllIn = userBalance == amount
@@ -46,13 +42,9 @@ public class HandActionManager(
         transactionRepo.Add(transaction);
     }
 
-    public async Task PostBigBlindAsync(Guid handId, Guid seatId, int amount)
+    public async Task PostBigBlindAsync(Hand hand, int amount)
     {
-        var hand = await handRepo.GetAsync(handId);
-
-        if (hand is null) throw new InvalidOperationException("Hand not found.");
-
-        var seat = await seatRepo.GetSeatAsync(hand.TableId, seatId);
+        var seat = await seatRepo.GetSeatAsync(hand.TableId, hand.BigBlindSeatId);
 
         if (seat is null) throw new InvalidOperationException("Seat not found.");
 
@@ -62,9 +54,9 @@ public class HandActionManager(
 
         var action = new HandAction
         {
-            HandId = handId,
+            HandId = hand.Id,
             Street = Street.PreFlop,
-            ActorSeatId = seatId,
+            ActorSeatId = hand.BigBlindSeatId,
             Type = HandActionType.PostBigBlind,
             Amount = amount,
             IsAllIn = userBalance == amount

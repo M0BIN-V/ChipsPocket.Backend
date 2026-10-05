@@ -2,6 +2,6 @@
 
 public abstract class Entity : IEntity<Guid>
 {
-    public DateTimeOffset CreatedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public Guid Id { get; set; } = Guid.CreateVersion7();
 }

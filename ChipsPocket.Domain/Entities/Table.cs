@@ -8,9 +8,9 @@ public class Table : Entity
     {
     }
 
-    public IReadOnlyList<Hand> Hands { get; private set; } = [];
+    public ICollection<Hand> Hands { get; private set; } = [];
 
-    public IReadOnlyList<Seat> Seats { get; private set; } = [];
+    public ICollection<Seat> Seats { get; private set; } = [];
 
     public int BigBlindAmount => SmallBlindAmount * 2;
     public int SmallBlindAmount { get; set; }
@@ -32,7 +32,7 @@ public class Table : Entity
             SmallBlindAmount = smallBlind,
             Id = id,
             CreatedById = creatorId,
-            Name = name,
+            Name = name
         };
     }
 }

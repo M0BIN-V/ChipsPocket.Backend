@@ -1,14 +1,14 @@
-﻿namespace ChipsPocket.Domain.Services.HandActionManager;
+﻿using ChipsPocket.Domain.Entities;
+
+namespace ChipsPocket.Domain.Services.HandActionManager;
 
 public interface IHandActionManager
 {
     public Task PostSmallBlindAsync(
-        Guid handId,
-        Guid seatId,
+        Hand hand,
         int amount);
 
     public Task PostBigBlindAsync(
-        Guid handId,
-        Guid seatId,
+        Hand hand,
         int amount);
 }

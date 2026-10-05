@@ -15,7 +15,7 @@ public sealed class TableHub(IMembersRepository membersRepository) : Hub
     {
         var userId = Context.User!.GetUserId();
 
-        if (await membersRepository.IsMemberOfTableAsync(tableId, userId))
+        if (!await membersRepository.IsMemberOfTableAsync(tableId, userId))
             throw new HubException("You cannot access this table.");
 
         await Groups.AddToGroupAsync(Context.ConnectionId, GetGroupName(tableId));

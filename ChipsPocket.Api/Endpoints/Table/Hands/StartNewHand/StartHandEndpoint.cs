@@ -1,15 +1,11 @@
-﻿using ChipsPocket.Api.Infra.Persistence;
+﻿using ChipsPocket.Api.Common.Dtos;
+using ChipsPocket.Api.Infra.Persistence;
 using ChipsPocket.Api.Notifications.Table;
 using ChipsPocket.Domain.Contracts;
+using ChipsPocket.Domain.Services.HandActionManager;
 using ChipsPocket.Domain.Services.HandManager;
 
 namespace ChipsPocket.Api.Endpoints.Table.Hands.StartNewHand;
-
-public record ViewCreateHandDto(
-    Guid HandId,
-    Guid DealerSeatId,
-    Guid BigBlindSeatId,
-    Guid SmallBlindSeatId);
 
 public class StartHandEndpoint : IEndpoint
 {
@@ -19,10 +15,11 @@ public class StartHandEndpoint : IEndpoint
             NotFound<string>,
             ForbidHttpResult,
             BadRequest<string>,
-            Ok<ViewCreateHandDto>>> (
+            Ok<ViewCreatedHandDto>>> (
             Guid tableId,
             IHandRepository handRepo,
             IHandManagerService managerService,
+            IHandActionManager actionManager,
             ITableRepository tableRepository,
             ITableNotificationPublisher publisher,
             ICurrentUser currentUser,
@@ -43,17 +40,20 @@ public class StartHandEndpoint : IEndpoint
 
             handRepo.AddHand(hand);
 
-            await db.SaveChangesAsync();
-
-            var response = new ViewCreateHandDto(
+            var viewCreatedHandDto = new ViewCreatedHandDto(
                 hand.Id,
                 hand.DealerSeatId,
                 hand.SmallBlindSeatId,
                 hand.BigBlindSeatId);
 
-            await publisher.PublishAsync(tableId, new HandStartedNotification(hand.Id));
+            await publisher.PublishAsync(tableId, new HandStartedNotification(viewCreatedHandDto));
 
-            return Ok(response);
+            await actionManager.PostSmallBlindAsync(hand, table.SmallBlindAmount);
+            await actionManager.PostBigBlindAsync(hand, table.BigBlindAmount);
+
+            await db.SaveChangesAsync();
+
+            return Ok(viewCreatedHandDto);
         });
     }
 }
