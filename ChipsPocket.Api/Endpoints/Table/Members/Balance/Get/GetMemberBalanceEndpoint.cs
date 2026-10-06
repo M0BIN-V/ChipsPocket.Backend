@@ -1,4 +1,4 @@
-﻿using ChipsPocket.Domain.Services.UserStack;
+﻿using ChipsPocket.Domain.Contracts;
 
 namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Get;
 
@@ -11,17 +11,26 @@ public class GetMemberBalanceEndpoint : IEndpoint
         group.MapGet("", async Task<Results<
                 NotFound<string>,
                 Ok<GetMemberBalanceResponse>>> (
-                [FromRoute] Guid tableId,
-                [FromRoute] string memberId,
-                [FromServices] IUserStackService userStackService,
-                CancellationToken cancellationToken) =>
+                Guid tableId,
+                string memberId,
+                IActiveHandRepository activeHandRepo,
+                IMembersRepository membersRepository) =>
             {
-                var balance = await userStackService.GetBalanceAsync(
-                    tableId,
-                    memberId,
-                    cancellationToken);
+                var hand = activeHandRepo.GetHand(tableId);
+                if (hand is not null)
+                {
+                    var member = hand.Seats.SingleOrDefault(s => s.Player.UserId == memberId)?.Player;
 
-                return Ok(new GetMemberBalanceResponse(balance));
+                    if (member is null) return NotFound("member not found");
+
+                    return Ok(new GetMemberBalanceResponse(member.Stack));
+                }
+                else
+                {
+                    var member = await membersRepository.GetTableMemberAsync(tableId, memberId);
+                    if (member is null) return NotFound("member not found");
+                    return Ok(new GetMemberBalanceResponse(member.Stack));
+                }
             })
             .WithName("GetMemberBalance")
             .WithSummary("Get a table member's balance")

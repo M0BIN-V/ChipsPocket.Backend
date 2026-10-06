@@ -1,7 +1,5 @@
 ﻿using ChipsPocket.Api.Infra.Persistence;
 using ChipsPocket.Domain.Contracts;
-using ChipsPocket.Domain.Services.Shop;
-using ChipsPocket.Domain.Services.UserStack;
 
 namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Deduct;
 
@@ -18,11 +16,12 @@ public class DeductMemberBalanceEndpoint : IEndpoint
                 string memberId,
                 Guid tableId,
                 AppDbContext db,
-                IShopService shopService,
+                IActiveHandRepository activeHandsRepo,
                 IMembersRepository membersRepository,
-                IUserStackService userStackService,
                 ICurrentUser currentUser) =>
             {
+                if (activeHandsRepo.GetHand(tableId) is not null) return Forbid();
+
                 if (value < 0) return BadRequest("value must be positive");
 
                 var userIsTableManager = await db.Tables
@@ -30,17 +29,15 @@ public class DeductMemberBalanceEndpoint : IEndpoint
 
                 if (!userIsTableManager) return Forbid();
 
-                var userIsTableMember = await membersRepository.IsMemberOfTableAsync(tableId, memberId);
+                var member = await membersRepository.GetTableMemberAsync(tableId, memberId);
 
-                if (!userIsTableMember) return NotFound("source user not found");
+                if (member is null) return NotFound("source user not found");
 
-                var memberBalance = await userStackService.GetBalanceAsync(tableId, memberId);
-
-                var userHasEnoughChips = memberBalance >= value;
+                var userHasEnoughChips = member.Stack >= value;
 
                 if (!userHasEnoughChips) return BadRequest("user does not have enough balance");
 
-                shopService.SellChips(tableId, memberId, value);
+                member.Stack -= value;
 
                 await db.SaveChangesAsync();
 

@@ -17,4 +17,11 @@ public class TransactionRepository(AppDbContext db) : ITransactionRepository
             .OrderByDescending(t => t.CreatedAtUtc)
             .ToListAsync();
     }
+
+    public Task<List<Transaction>> GetPotTransaction(Guid potId)
+    {
+        return db.Transactions
+            .Where(t => t.FromPotId == potId || t.ToPotId == potId)
+            .ToListAsync();
+    }
 }

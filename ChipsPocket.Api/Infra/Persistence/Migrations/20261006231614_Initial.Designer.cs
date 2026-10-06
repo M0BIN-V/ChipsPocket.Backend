@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChipsPocket.Api.Infra.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261005120615_Initial")]
+    [Migration("20261006231614_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
 
-            modelBuilder.Entity("ChipsPocket.Domain.Entities.Hand", b =>
+            modelBuilder.Entity("ChipsPocket.Domain.Entities.CompletedHand", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -29,22 +29,10 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                     b.Property<Guid>("BigBlindSeatId")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("CurrentStreet")
-                        .HasColumnType("INTEGER");
 
                     b.Property<Guid>("DealerSeatId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("MinimumRaise")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<Guid>("NextActorSeatId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("PotId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("SmallBlindSeatId")
@@ -59,50 +47,11 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
 
                     b.HasIndex("DealerSeatId");
 
-                    b.HasIndex("PotId")
-                        .IsUnique();
-
                     b.HasIndex("SmallBlindSeatId");
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("Hands");
-                });
-
-            modelBuilder.Entity("ChipsPocket.Domain.Entities.HandAction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ActorSeatId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("Amount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("HandId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsAllIn")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HandId");
-
-                    b.ToTable("HandActions");
+                    b.ToTable("CompletedHands");
                 });
 
             modelBuilder.Entity("ChipsPocket.Domain.Entities.Pot", b =>
@@ -111,7 +60,7 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -125,7 +74,7 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Order")
@@ -156,7 +105,7 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedById")
@@ -195,6 +144,9 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Stack")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("TableId", "UserId");
 
                     b.HasIndex("UserId");
@@ -208,7 +160,7 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("FromPotId")
@@ -442,7 +394,7 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ChipsPocket.Domain.Entities.Hand", b =>
+            modelBuilder.Entity("ChipsPocket.Domain.Entities.CompletedHand", b =>
                 {
                     b.HasOne("ChipsPocket.Domain.Entities.Seat", null)
                         .WithMany()
@@ -456,12 +408,6 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ChipsPocket.Domain.Entities.Pot", "Pot")
-                        .WithOne()
-                        .HasForeignKey("ChipsPocket.Domain.Entities.Hand", "PotId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ChipsPocket.Domain.Entities.Seat", null)
                         .WithMany()
                         .HasForeignKey("SmallBlindSeatId")
@@ -469,19 +415,8 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                         .IsRequired();
 
                     b.HasOne("ChipsPocket.Domain.Entities.Table", null)
-                        .WithMany("Hands")
-                        .HasForeignKey("TableId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Pot");
-                });
-
-            modelBuilder.Entity("ChipsPocket.Domain.Entities.HandAction", b =>
-                {
-                    b.HasOne("ChipsPocket.Domain.Entities.Hand", null)
                         .WithMany()
-                        .HasForeignKey("HandId")
+                        .HasForeignKey("TableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -626,8 +561,6 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
 
             modelBuilder.Entity("ChipsPocket.Domain.Entities.Table", b =>
                 {
-                    b.Navigation("Hands");
-
                     b.Navigation("Seats");
                 });
 #pragma warning restore 612, 618

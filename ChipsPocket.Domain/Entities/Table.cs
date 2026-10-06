@@ -8,8 +8,6 @@ public class Table : Entity
     {
     }
 
-    public ICollection<Hand> Hands { get; private set; } = [];
-
     public ICollection<Seat> Seats { get; private set; } = [];
 
     public int BigBlindAmount => SmallBlindAmount * 2;

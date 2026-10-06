@@ -15,6 +15,11 @@ public class MembersRepository(AppDbContext db) : IMembersRepository
         return db.TableMembers.Where(m => m.TableId == tableId).ToListAsync();
     }
 
+    public Task<TableMember?> GetTableMemberAsync(Guid tableId, string userId)
+    {
+        return db.TableMembers.SingleOrDefaultAsync(m => m.TableId == tableId && m.UserId == userId);
+    }
+
     public Task<List<Guid>> GetTableIdsAsync(string userId)
     {
         return db.TableMembers

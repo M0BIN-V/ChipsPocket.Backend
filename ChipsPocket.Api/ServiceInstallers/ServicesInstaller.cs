@@ -2,8 +2,6 @@
 using ChipsPocket.Domain.Contracts;
 using ChipsPocket.Domain.Services.HandActionManager;
 using ChipsPocket.Domain.Services.HandManager;
-using ChipsPocket.Domain.Services.Shop;
-using ChipsPocket.Domain.Services.UserStack;
 using DiServiceInstaller;
 
 namespace ChipsPocket.Api.ServiceInstallers;
@@ -15,10 +13,8 @@ public class ServicesInstaller : IServiceInstaller
         builder.Services.AddHttpContextAccessor();
 
         builder.Services
-            .AddScoped<IShopService, ShopService>()
-            .AddScoped<IHandActionRepository, HandActionRepository>()
+            .AddSingleton<IActiveHandRepository, ActiveHandRepository>()
             .AddScoped<IHandActionManager, HandActionManager>()
-            .AddScoped<IUserStackService, UserStackService>()
             .AddScoped<ITableRepository, TableRepository>()
             .AddScoped<ICurrentUser, CurrentUser>()
             .AddScoped<ISeatRepository, SeatRepository>()
@@ -26,6 +22,6 @@ public class ServicesInstaller : IServiceInstaller
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<ITransactionRepository, TransactionRepository>()
             .AddScoped<IHandManagerService, HandManagerService>()
-            .AddScoped<IHandRepository, HandRepository>();
+            .AddScoped<ICompletedHandRepository, CompletedHandsRepository>();
     }
 }

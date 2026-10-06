@@ -55,7 +55,7 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    CreatedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -177,7 +177,7 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                     CreatedById = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
                     ManagerId = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
-                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    CreatedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -204,7 +204,7 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                     Order = table.Column<int>(type: "INTEGER", nullable: false),
                     UserId = table.Column<string>(type: "TEXT", maxLength: 300, nullable: true),
                     TableId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    CreatedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -227,7 +227,8 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "TEXT", maxLength: 300, nullable: false),
-                    TableId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    TableId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Stack = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -259,7 +260,7 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                     FromShop = table.Column<bool>(type: "INTEGER", nullable: false),
                     ToShop = table.Column<bool>(type: "INTEGER", nullable: false),
                     Value = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    CreatedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -297,75 +298,41 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Hands",
+                name: "CompletedHands",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     TableId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CurrentStreet = table.Column<int>(type: "INTEGER", nullable: false),
                     BigBlindSeatId = table.Column<Guid>(type: "TEXT", nullable: false),
                     SmallBlindSeatId = table.Column<Guid>(type: "TEXT", nullable: false),
                     DealerSeatId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    MinimumRaise = table.Column<int>(type: "INTEGER", nullable: false),
-                    PotId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    NextActorSeatId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    CreatedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Hands", x => x.Id);
+                    table.PrimaryKey("PK_CompletedHands", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Hands_Pot_PotId",
-                        column: x => x.PotId,
-                        principalTable: "Pot",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Hands_Seats_BigBlindSeatId",
+                        name: "FK_CompletedHands_Seats_BigBlindSeatId",
                         column: x => x.BigBlindSeatId,
                         principalTable: "Seats",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Hands_Seats_DealerSeatId",
+                        name: "FK_CompletedHands_Seats_DealerSeatId",
                         column: x => x.DealerSeatId,
                         principalTable: "Seats",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Hands_Seats_SmallBlindSeatId",
+                        name: "FK_CompletedHands_Seats_SmallBlindSeatId",
                         column: x => x.SmallBlindSeatId,
                         principalTable: "Seats",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Hands_Tables_TableId",
+                        name: "FK_CompletedHands_Tables_TableId",
                         column: x => x.TableId,
                         principalTable: "Tables",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "HandActions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    HandId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Street = table.Column<string>(type: "TEXT", nullable: false),
-                    ActorSeatId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", nullable: false),
-                    Amount = table.Column<int>(type: "INTEGER", nullable: true),
-                    IsAllIn = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedAtUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_HandActions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_HandActions_Hands_HandId",
-                        column: x => x.HandId,
-                        principalTable: "Hands",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -408,34 +375,23 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_HandActions_HandId",
-                table: "HandActions",
-                column: "HandId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Hands_BigBlindSeatId",
-                table: "Hands",
+                name: "IX_CompletedHands_BigBlindSeatId",
+                table: "CompletedHands",
                 column: "BigBlindSeatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Hands_DealerSeatId",
-                table: "Hands",
+                name: "IX_CompletedHands_DealerSeatId",
+                table: "CompletedHands",
                 column: "DealerSeatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Hands_PotId",
-                table: "Hands",
-                column: "PotId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Hands_SmallBlindSeatId",
-                table: "Hands",
+                name: "IX_CompletedHands_SmallBlindSeatId",
+                table: "CompletedHands",
                 column: "SmallBlindSeatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Hands_TableId",
-                table: "Hands",
+                name: "IX_CompletedHands_TableId",
+                table: "CompletedHands",
                 column: "TableId");
 
             migrationBuilder.CreateIndex(
@@ -514,7 +470,7 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "HandActions");
+                name: "CompletedHands");
 
             migrationBuilder.DropTable(
                 name: "TableMembers");
@@ -526,13 +482,10 @@ namespace ChipsPocket.Api.Infra.Persistence.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Hands");
+                name: "Seats");
 
             migrationBuilder.DropTable(
                 name: "Pot");
-
-            migrationBuilder.DropTable(
-                name: "Seats");
 
             migrationBuilder.DropTable(
                 name: "Tables");

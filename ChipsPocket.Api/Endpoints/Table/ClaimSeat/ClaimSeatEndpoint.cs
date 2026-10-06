@@ -1,7 +1,6 @@
 ﻿using ChipsPocket.Api.Infra.Persistence;
 using ChipsPocket.Api.Notifications.Table;
 using ChipsPocket.Domain.Contracts;
-using ChipsPocket.Domain.Entities;
 
 namespace ChipsPocket.Api.Endpoints.Table.ClaimSeat;
 
@@ -16,17 +15,14 @@ public class ClaimSeatEndpoint : IEndpoint
                     Conflict<string>,
                     Ok>> (
                     Guid tableId,
-                     Guid seatId,
-                     ITableRepository tableRepository,
+                    Guid seatId,
                     ITableNotificationPublisher publisher,
                     AppDbContext db,
                     IMembersRepository membersRepository,
-                    IHandRepository handRepository,
+                    IActiveHandRepository activeHandRepository,
                     ICurrentUser currentUser) =>
                 {
-                    var lastHand = await handRepository.GetLastHandAsync(tableId);
-                    if (lastHand is not null && lastHand.CurrentStreet != Street.Finished)
-                        return Forbid();
+                    if (activeHandRepository.GetHand(tableId) is not null) return Forbid();
 
                     var user = await db.Users.SingleAsync(u => u.Id == currentUser.Id);
 

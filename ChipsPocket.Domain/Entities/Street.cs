@@ -6,6 +6,5 @@ public enum Street
     Flop,
     Turn,
     River,
-    Showdown,
-    Finished
+    Showdown
 }

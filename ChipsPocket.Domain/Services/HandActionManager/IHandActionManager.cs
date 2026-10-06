@@ -4,11 +4,7 @@ namespace ChipsPocket.Domain.Services.HandActionManager;
 
 public interface IHandActionManager
 {
-    public Task PostSmallBlindAsync(
-        Hand hand,
-        int amount);
+    void PostSmallBlind(ActiveHand hand);
 
-    public Task PostBigBlindAsync(
-        Hand hand,
-        int amount);
+    void PostBigBlind(ActiveHand hand);
 }

@@ -1,7 +1,6 @@
 ﻿using ChipsPocket.Api.Infra.Persistence;
 using ChipsPocket.Api.Notifications.Table;
 using ChipsPocket.Domain.Contracts;
-using ChipsPocket.Domain.Entities;
 
 namespace ChipsPocket.Api.Endpoints.Table.ReleaseSeat;
 
@@ -13,20 +12,16 @@ public class ReleaseSeatEndpoint : IEndpoint
                 ForbidHttpResult,
                 NotFound,
                 Ok>> (
-                [FromRoute] Guid tableId,
-                [FromRoute] Guid seatId,
-                [FromServices] ITableNotificationPublisher publisher,
-                [FromServices] AppDbContext db,
-                [FromServices] IMembersRepository membersRepository,
-                [FromServices] IHandRepository handRepository,
-                [FromServices] ITableRepository tableRepository,
-                [FromServices] ICurrentUser currentUser) =>
+                Guid tableId,
+                Guid seatId,
+                ITableNotificationPublisher publisher,
+                AppDbContext db,
+                IMembersRepository membersRepository,
+                IActiveHandRepository activeHandRepo,
+                ICurrentUser currentUser) =>
             {
-                if (!await membersRepository.IsMemberOfTableAsync(tableId, currentUser.Id))
-                    return Forbid();
-
-                var lastHand = await handRepository.GetLastHandAsync(tableId);
-                if (lastHand is not null && lastHand.CurrentStreet != Street.Finished)
+                if (!await membersRepository.IsMemberOfTableAsync(tableId, currentUser.Id) ||
+                    activeHandRepo.GetHand(tableId) is not null)
                     return Forbid();
 
                 var seat = await db.Seats

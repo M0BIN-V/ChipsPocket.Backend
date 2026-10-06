@@ -1,20 +1,19 @@
 ﻿using ChipsPocket.Domain.Contracts;
 using ChipsPocket.Domain.Entities;
-using ChipsPocket.Domain.Services.HandActionManager;
-using ChipsPocket.Domain.Services.UserStack;
 
 namespace ChipsPocket.Domain.Services.HandManager;
 
 public class HandManagerService(
-    IUserStackService userStackService,
-    IHandRepository handRepository,
+    IMembersRepository membersRepo,
+    IActiveHandRepository activeHandRepo,
+    ICompletedHandRepository completedHandRepo,
     ISeatRepository seatRepository,
     ITableRepository tableRepository) : IHandManagerService
 {
     public async Task<(bool, string)> TableIsValidToStartHandAsync(Guid tableId)
     {
         //validate active hand
-        if (await handRepository.TableHasActiveHandAsync(tableId)) return (false, "table has active hand");
+        if (activeHandRepo.GetHand(tableId) is not null) return (false, "table has active hand");
 
         //validate claimed seat count
         var claimedSeats = await seatRepository.GetClaimedSeatsAsync(tableId);
@@ -26,15 +25,15 @@ public class HandManagerService(
         if (table is null) throw new NullReferenceException("table not found");
         foreach (var claimedSeat in claimedSeats)
         {
-            var userBalance = await userStackService.GetBalanceAsync(tableId, claimedSeat.UserId!);
+            var member = await membersRepo.GetTableMemberAsync(tableId, claimedSeat.UserId!);
 
-            if (userBalance <= 0) return (false, $"User {claimedSeat.UserId} does not have enough balance.");
+            if (member!.Stack <= 0) return (false, $"User {claimedSeat.UserId} does not have enough balance.");
         }
 
         return (true, string.Empty);
     }
 
-    public async Task<Hand> SetupHandAsync(Guid tableId)
+    public async Task<ActiveHand> SetupHandAsync(Guid tableId)
     {
         var claimedSeats = await seatRepository.GetClaimedSeatsAsync(tableId);
 
@@ -44,26 +43,44 @@ public class HandManagerService(
 
         var table = await tableRepository.GetTableAsync(tableId);
 
-        var smallBlindAmount = table?.SmallBlindAmount ?? throw new Exception("table not found");
-        var bigBlindAmount = smallBlindAmount * 2;
+        if (table is null) throw new NullReferenceException("table not found");
 
-        var hand = new Hand
+        var usersStacks = (await membersRepo.GetTableMembersAsync(tableId))
+            .ToDictionary(k => k.UserId, v => v.Stack);
+
+        var activeHand = new ActiveHand
         {
             TableId = tableId,
-            DealerSeatId = dealerSeat.Id,
-            SmallBlindSeatId = smallBlindSeat.Id,
-            BigBlindSeatId = bigBlindSeat.Id,
+            HandId = Guid.CreateVersion7(),
+            Seats = claimedSeats.Select(s => new HandSeat
+                {
+                    Order = s.Order,
+                    Player = new HandPlayer
+                    {
+                        UserId = s.UserId!,
+                        Username = s.User!.UserName!,
+                        Stack = usersStacks[s.UserId!]
+                    },
+                    IsDealer = dealerSeat.Id == s.Id,
+                    IsSmallBlind = smallBlindSeat.Id == s.Id,
+                    IsBigBlind = bigBlindSeat.Id == s.Id,
+                    IsFolded = false
+                })
+                .ToList(),
+            PotValue = 0,
+            BigBlindAmount = table.BigBlindAmount,
+            SmallBlindAmount = table.SmallBlindAmount,
+            MinimumRaiseAmount = table.BigBlindAmount * 2,
             CurrentStreet = Street.PreFlop,
-            MinimumRaise = bigBlindAmount * 2,
-            NextActorSeatId = NextClaimedSeat(claimedSeats, bigBlindSeat.Order).Id
+            Actions = []
         };
 
-        return hand;
+        return activeHand;
     }
 
     private async Task<int?> GetLastHandDealerSeatOrder(Guid tableId)
     {
-        var dealerSeatId = (await handRepository.GetLastHandAsync(tableId))?.DealerSeatId;
+        var dealerSeatId = (await completedHandRepo.GetLastHandAsync(tableId))?.DealerSeatId;
 
         if (dealerSeatId is null) return null;
 

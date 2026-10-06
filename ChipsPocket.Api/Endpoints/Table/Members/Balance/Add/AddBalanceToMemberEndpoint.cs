@@ -1,6 +1,5 @@
 ﻿using ChipsPocket.Api.Infra.Persistence;
 using ChipsPocket.Domain.Contracts;
-using ChipsPocket.Domain.Services.Shop;
 
 namespace ChipsPocket.Api.Endpoints.Table.Members.Balance.Add;
 
@@ -26,19 +25,22 @@ public class AddBalanceToMemberEndpoint : IEndpoint
                 AddBalanceRequest request,
                 string memberId,
                 Guid tableId,
-                IShopService shopService,
                 IMembersRepository membersRepository,
                 ITableRepository tableRepository,
+                IActiveHandRepository activeHandsRepo,
                 AppDbContext db,
                 ICurrentUser currentUser) =>
             {
+                if (activeHandsRepo.GetHand(tableId) is not null) return Forbid();
+
                 var managerId = await tableRepository.GetManagerIdAsync(tableId);
                 if (managerId != currentUser.Id) return Forbid();
 
-                if (!await membersRepository.IsMemberOfTableAsync(tableId, memberId))
-                    return NotFound("destination user not found");
+                var member = await membersRepository.GetTableMemberAsync(tableId, memberId);
 
-                shopService.BuyChips(tableId, memberId, request.Value);
+                if (member is null) return NotFound("destination user not found");
+
+                member.Stack += request.Value;
 
                 await db.SaveChangesAsync();
                 return Ok();
@@ -47,7 +49,7 @@ public class AddBalanceToMemberEndpoint : IEndpoint
             .WithSummary("Add balance to a table member")
             .WithDescription(
                 "Adds the specified amount to a table member's balance. " +
-                "Only the managerService of the table can perform this operation.")
+                "Only the manager of the table can perform this operation.")
             .Validate<AddBalanceRequest>()
             .RequireAuthorization();
     }

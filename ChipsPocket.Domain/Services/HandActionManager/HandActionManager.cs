@@ -1,75 +1,60 @@
-﻿using ChipsPocket.Domain.Contracts;
-using ChipsPocket.Domain.Entities;
-using ChipsPocket.Domain.Services.UserStack;
+﻿using ChipsPocket.Domain.Entities;
 
 namespace ChipsPocket.Domain.Services.HandActionManager;
 
-public class HandActionManager(
-    ITransactionRepository transactionRepo,
-    IHandActionRepository handActionRepo,
-    ISeatRepository seatRepo,
-    IUserStackService userStackService,
-    IHandRepository handRepo) : IHandActionManager
+public class HandActionManager : IHandActionManager
 {
-    public async Task PostSmallBlindAsync(Hand hand, int amount)
+    public void PostSmallBlind(ActiveHand hand)
     {
-        var seat = await seatRepo.GetSeatAsync(hand.TableId, hand.SmallBlindSeatId);
+        if (hand.CurrentStreet != Street.PreFlop)
+            throw new InvalidOperationException("Small blind can only be posted in PreFlop street.");
 
-        if (seat is null) throw new InvalidOperationException("Seat not found.");
+        var seat = hand.Seats.Single(s => s.IsSmallBlind);
 
-        var userBalance = await userStackService.GetBalanceAsync(hand.TableId, seat.UserId!);
+        var userBalance = seat.Player.Stack;
+
+        var amount = hand.SmallBlindAmount;
 
         if (userBalance < amount) throw new InvalidOperationException("Insufficient balance to post small blind.");
 
         var action = new HandAction
         {
-            HandId = hand.Id,
             Street = Street.PreFlop,
-            ActorSeatId = hand.SmallBlindSeatId,
+            ActorSeatOrder = seat.Order,
             Type = HandActionType.PostSmallBlind,
             Amount = amount,
             IsAllIn = userBalance == amount
         };
 
-        handActionRepo.Add(action);
+        seat.Player.Stack -= amount;
 
-        var transaction = TransactionBuilder.Create(hand.TableId)
-            .FromUser(seat.UserId!)
-            .ToPot(hand.PotId)
-            .WithAmount(amount)
-            .Build();
-
-        transactionRepo.Add(transaction);
+        hand.Actions.Add(action);
     }
 
-    public async Task PostBigBlindAsync(Hand hand, int amount)
+    public void PostBigBlind(ActiveHand hand)
     {
-        var seat = await seatRepo.GetSeatAsync(hand.TableId, hand.BigBlindSeatId);
+        if (hand.CurrentStreet != Street.PreFlop)
+            throw new InvalidOperationException("Small blind can only be posted in PreFlop street.");
 
-        if (seat is null) throw new InvalidOperationException("Seat not found.");
+        var seat = hand.Seats.Single(s => s.IsBigBlind);
 
-        var userBalance = await userStackService.GetBalanceAsync(hand.TableId, seat.UserId!);
+        var userBalance = seat.Player.Stack;
+
+        var amount = hand.SmallBlindAmount;
 
         if (userBalance < amount) throw new InvalidOperationException("Insufficient balance to post big blind.");
 
         var action = new HandAction
         {
-            HandId = hand.Id,
             Street = Street.PreFlop,
-            ActorSeatId = hand.BigBlindSeatId,
+            ActorSeatOrder = seat.Order,
             Type = HandActionType.PostBigBlind,
             Amount = amount,
             IsAllIn = userBalance == amount
         };
 
-        handActionRepo.Add(action);
 
-        var transaction = TransactionBuilder.Create(hand.TableId)
-            .FromUser(seat.UserId!)
-            .ToPot(hand.PotId)
-            .WithAmount(amount)
-            .Build();
-
-        transactionRepo.Add(transaction);
+        hand.Actions.Add(action);
+        seat.Player.Stack -= amount;
     }
 }

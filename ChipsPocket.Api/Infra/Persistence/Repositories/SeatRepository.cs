@@ -28,4 +28,16 @@ public class SeatRepository(AppDbContext db) : ISeatRepository
             .OrderBy(s => s.Order)
             .SingleOrDefaultAsync();
     }
+
+    public Task<List<Seat>> GetSeatsAsync(Guid tableId, bool includeUser = true)
+    {
+        var query = db.Seats
+            .Where(s => s.TableId == tableId);
+
+        if (includeUser) query = query.Include(s => s.User);
+
+        return query
+            .OrderBy(s => s.Order)
+            .ToListAsync();
+    }
 }

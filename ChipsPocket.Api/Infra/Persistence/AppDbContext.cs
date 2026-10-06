@@ -6,11 +6,10 @@ namespace ChipsPocket.Api.Infra.Persistence;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User>(options)
 {
     public DbSet<TableMember> TableMembers { get; init; }
-    public DbSet<Hand> Hands { get; init; }
+    public DbSet<CompletedHand> CompletedHands { get; init; }
     public DbSet<Transaction> Transactions { get; init; }
     public DbSet<Seat> Seats { get; init; }
     public DbSet<Table> Tables { get; init; }
-    public DbSet<HandAction> HandActions { get; init; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
