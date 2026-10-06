@@ -1,4 +1,4 @@
-name: CD - Deploy to Liara
+name: CD - Backend Deploy to Liara
 
 on:
   push:
@@ -55,18 +55,18 @@ jobs:
       - name: Install Liara CLI
         run: npm install -g @liara/cli@7
 
-      - name: Telegram - Deploy Started
+      - name: Telegram - Backend Deploy Started
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          MESSAGE="🚀 <b>ChipsPocket Deploy Started</b>
+          MESSAGE="🚀 <b>ChipsPocket Backend Deploy Started</b>
           
+          🖥️ Service: <b>Backend</b>
           📦 Version: <code>${{ steps.version.outputs.version }}</code>
           🏷 Tag: <code>${GITHUB_REF_NAME}</code>
-          🌿 Ref: <code>${GITHUB_REF_NAME}</code>
           
-          ⏳ Deploying to Liara..."
+          ⏳ Deploying backend to Liara..."
           
           curl -sS -X POST \
             "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
@@ -74,7 +74,7 @@ jobs:
             --data-urlencode text="$MESSAGE" \
             -d parse_mode="HTML"
 
-      - name: Deploy to Liara
+      - name: Deploy Backend to Liara
         id: deploy
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
@@ -85,14 +85,15 @@ jobs:
             --no-app-logs \
             --port=80
 
-      - name: Telegram - Deploy Success
+      - name: Telegram - Backend Deploy Success
         if: success()
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          MESSAGE="✅ <b>ChipsPocket Deploy Successful</b>
+          MESSAGE="✅ <b>ChipsPocket Backend Deploy Successful</b>
           
+          🖥️ Service: <b>Backend</b>
           📦 Version: <code>${{ steps.version.outputs.version }}</code>
           🏷 Tag: <code>${GITHUB_REF_NAME}</code>
           🚀 Status: <b>Deployed successfully</b>
@@ -105,14 +106,15 @@ jobs:
             --data-urlencode text="$MESSAGE" \
             -d parse_mode="HTML"
 
-      - name: Telegram - Deploy Failed
+      - name: Telegram - Backend Deploy Failed
         if: failure()
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          MESSAGE="❌ <b>ChipsPocket Deploy Failed</b>
+          MESSAGE="❌ <b>ChipsPocket Backend Deploy Failed</b>
           
+          🖥️ Service: <b>Backend</b>
           📦 Version: <code>${{ steps.version.outputs.version }}</code>
           🏷 Tag: <code>${GITHUB_REF_NAME}</code>
           💥 Status: <b>Deployment failed</b>
@@ -124,3 +126,4 @@ jobs:
             -d chat_id="${TELEGRAM_CHAT_ID}" \
             --data-urlencode text="$MESSAGE" \
             -d parse_mode="HTML"
+
