@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
-
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,17 +22,17 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME}"
           VERSION="${TAG#v}"
-
+          
           echo "Tag: $TAG"
           echo "Version: $VERSION"
-
+          
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Generate Directory.Build.props
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-
+          
           cat > Directory.Build.props <<EOF
           <Project>
             <PropertyGroup>
@@ -43,7 +43,7 @@ jobs:
             </PropertyGroup>
           </Project>
           EOF
-
+          
           echo "Generated Directory.Build.props:"
           cat Directory.Build.props
 
@@ -55,7 +55,27 @@ jobs:
       - name: Install Liara CLI
         run: npm install -g @liara/cli@7
 
+      - name: Telegram - Deploy Started
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          MESSAGE="🚀 <b>ChipsPocket Deploy Started</b>
+          
+          📦 Version: <code>${{ steps.version.outputs.version }}</code>
+          🏷 Tag: <code>${GITHUB_REF_NAME}</code>
+          🌿 Ref: <code>${GITHUB_REF_NAME}</code>
+          
+          ⏳ Deploying to Liara..."
+          
+          curl -sS -X POST \
+            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            --data-urlencode text="$MESSAGE" \
+            -d parse_mode="HTML"
+
       - name: Deploy to Liara
+        id: deploy
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
         run: |
@@ -64,3 +84,43 @@ jobs:
             --api-token="$LIARA_TOKEN" \
             --no-app-logs \
             --port=80
+
+      - name: Telegram - Deploy Success
+        if: success()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          MESSAGE="✅ <b>ChipsPocket Deploy Successful</b>
+          
+          📦 Version: <code>${{ steps.version.outputs.version }}</code>
+          🏷 Tag: <code>${GITHUB_REF_NAME}</code>
+          🚀 Status: <b>Deployed successfully</b>
+          
+          🔗 <a href=\"https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\">View GitHub Actions</a>"
+          
+          curl -sS -X POST \
+            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            --data-urlencode text="$MESSAGE" \
+            -d parse_mode="HTML"
+
+      - name: Telegram - Deploy Failed
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          MESSAGE="❌ <b>ChipsPocket Deploy Failed</b>
+          
+          📦 Version: <code>${{ steps.version.outputs.version }}</code>
+          🏷 Tag: <code>${GITHUB_REF_NAME}</code>
+          💥 Status: <b>Deployment failed</b>
+          
+          🔗 <a href=\"https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\">View Error Logs</a>"
+          
+          curl -sS -X POST \
+            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            --data-urlencode text="$MESSAGE" \
+            -d parse_mode="HTML"
