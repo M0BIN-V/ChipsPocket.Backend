@@ -1,4 +1,5 @@
-﻿using ChipsPocket.Domain.Entities;
+﻿using ChipsPocket.Api.Common.Dtos;
+using ChipsPocket.Domain.Entities;
 
 namespace ChipsPocket.Api.Notifications.Table;
 
@@ -8,4 +9,4 @@ public record MemberJoinedToTableNotification(string UserId, string Username) : 
 
 public record MemberReleasedSeatNotification(string UserId, Guid SeatId) : ITableNotification;
 
-public record HandStartedNotification(ActiveHand Hand) : ITableNotification;
+public record HandStartedNotification(ViewActiveHandDto Hand) : ITableNotification;

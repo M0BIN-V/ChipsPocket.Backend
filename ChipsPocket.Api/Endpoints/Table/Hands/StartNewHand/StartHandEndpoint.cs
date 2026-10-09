@@ -1,4 +1,5 @@
-﻿using ChipsPocket.Api.Infra.Persistence;
+﻿using ChipsPocket.Api.Common.Extensions;
+using ChipsPocket.Api.Infra.Persistence;
 using ChipsPocket.Api.Notifications.Table;
 using ChipsPocket.Domain.Contracts;
 using ChipsPocket.Domain.Entities;
@@ -40,7 +41,7 @@ public class StartHandEndpoint : IEndpoint
 
             activeHandRepo.AddHand(hand);
 
-            await publisher.PublishAsync(tableId, new HandStartedNotification(hand));
+            await publisher.PublishAsync(tableId, new HandStartedNotification(hand.ToDto()));
 
             actionManager.PostSmallBlind(hand);
             actionManager.PostBigBlind(hand);

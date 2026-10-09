@@ -13,6 +13,8 @@ public static class TableRealtimeExtensions
             .RegisterRealtimeEvent<MemberClaimedSeatNotification>(typeof(TableHub),
                 "Sent when a player claims a seat.")
             .RegisterRealtimeEvent<MemberReleasedSeatNotification>(typeof(TableHub),
-                "Sent when ap player releases a seat");
+                "Sent when ap player releases a seat")
+            .RegisterRealtimeEvent<HandStartedNotification>(typeof(TableHub),
+                "Sent when hand is started");
     }
 }
