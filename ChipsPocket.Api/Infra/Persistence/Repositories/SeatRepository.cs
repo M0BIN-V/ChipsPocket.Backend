@@ -16,6 +16,7 @@ public class SeatRepository(AppDbContext db) : ISeatRepository
     public Task<List<Seat>> GetClaimedSeatsAsync(Guid tableId)
     {
         return db.Seats
+            .Include(s=>s.User)
             .Where(s => s.TableId == tableId && s.UserId != null)
             .OrderBy(s => s.Order)
             .ToListAsync();
