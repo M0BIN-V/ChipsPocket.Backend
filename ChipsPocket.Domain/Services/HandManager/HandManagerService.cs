@@ -1,5 +1,4 @@
-﻿using ChipsPocket.Domain.Contracts;
-using ChipsPocket.Domain.Entities;
+﻿using ChipsPocket.Domain.Services.HandActionManager;
 
 namespace ChipsPocket.Domain.Services.HandManager;
 
@@ -8,6 +7,7 @@ public class HandManagerService(
     IActiveHandRepository activeHandRepo,
     ICompletedHandRepository completedHandRepo,
     ISeatRepository seatRepository,
+    IHandActionManager actionManager,
     ITableRepository tableRepository) : IHandManagerService
 {
     public async Task<(bool, string)> TableIsValidToStartHandAsync(Guid tableId)
@@ -37,9 +37,9 @@ public class HandManagerService(
     {
         var claimedSeats = await seatRepository.GetClaimedSeatsAsync(tableId);
 
-        var dealerSeat = SetupDealer(claimedSeats, await GetLastHandDealerSeatOrder(tableId));
-        var smallBlindSeat = SetupSmallBlind(claimedSeats, dealerSeat);
-        var bigBlindSeat = SetupBigBlind(claimedSeats, smallBlindSeat);
+        var dealerSeat = claimedSeats.GetDealer(await GetLastHandDealerSeatOrder(tableId));
+        var smallBlindSeat = claimedSeats.GetSmallBlind(dealerSeat);
+        var bigBlindSeat = claimedSeats.GetBigBlind(smallBlindSeat);
 
         var table = await tableRepository.GetTableAsync(tableId);
 
@@ -72,8 +72,11 @@ public class HandManagerService(
             SmallBlindAmount = table.SmallBlindAmount,
             MinimumRaiseAmount = table.BigBlindAmount * 2,
             CurrentStreet = Street.PreFlop,
-            Actions = []
+            Actions = [],
         };
+
+        actionManager.PostSmallBlind(activeHand);
+        actionManager.PostBigBlind(activeHand);
 
         return activeHand;
     }
@@ -87,32 +90,5 @@ public class HandManagerService(
         var dealerSeat = await seatRepository.GetSeatAsync(tableId, dealerSeatId.Value);
 
         return dealerSeat?.Order ?? throw new Exception("dealer seat not found");
-    }
-
-    private static Seat SetupDealer(List<Seat> claimedSeats, int? lastDealerOrder)
-    {
-        return lastDealerOrder is null ? claimedSeats[0] : NextClaimedSeat(claimedSeats, lastDealerOrder.Value);
-    }
-
-    private static Seat SetupSmallBlind(List<Seat> claimedSeats, Seat dealer)
-    {
-        return claimedSeats.Count == 2
-            ? dealer
-            : NextClaimedSeat(claimedSeats, dealer.Order);
-    }
-
-    private static Seat SetupBigBlind(List<Seat> claimedSeats, Seat smallBlind)
-    {
-        return claimedSeats.Count == 2
-            ? smallBlind
-            : NextClaimedSeat(claimedSeats, smallBlind.Order);
-    }
-
-    private static Seat NextClaimedSeat(List<Seat> claimedSeats, int currentOrder)
-    {
-        return claimedSeats
-            .Where(s => s.Order > currentOrder)
-            .Concat(claimedSeats.Where(s => s.Order <= currentOrder))
-            .First();
     }
 }

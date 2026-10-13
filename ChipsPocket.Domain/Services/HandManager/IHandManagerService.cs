@@ -1,6 +1,4 @@
-﻿using ChipsPocket.Domain.Entities;
-
-namespace ChipsPocket.Domain.Services.HandManager;
+﻿namespace ChipsPocket.Domain.Services.HandManager;
 
 public interface IHandManagerService
 {

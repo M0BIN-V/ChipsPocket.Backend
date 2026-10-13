@@ -1,6 +1,4 @@
-﻿using ChipsPocket.Domain.Entities;
-
-namespace ChipsPocket.Domain.Contracts;
+﻿namespace ChipsPocket.Domain.Contracts;
 
 public interface IUserRepository
 {

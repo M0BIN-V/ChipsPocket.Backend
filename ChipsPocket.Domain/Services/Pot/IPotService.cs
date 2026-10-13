@@ -1,6 +1,4 @@
-﻿using ChipsPocket.Domain.Contracts;
-
-namespace ChipsPocket.Domain.Services.Pot;
+﻿namespace ChipsPocket.Domain.Services.Pot;
 
 public interface IPotService
 {

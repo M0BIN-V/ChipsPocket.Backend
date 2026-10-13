@@ -33,13 +33,15 @@ internal static class ActiveHandExtensions
                 MinimumRaiseAmount = hand.MinimumRaiseAmount,
                 CurrentStreet = hand.CurrentStreet,
                 Actions = hand.Actions.Select(a => new HandAction
-                {
-                    Street = a.Street,
-                    ActorSeatOrder = a.ActorSeatOrder,
-                    Type = a.Type,
-                    Amount = a.Amount,
-                    IsAllIn = a.IsAllIn
-                }).ToList()
+                    {
+                        Street = a.Street,
+                        ActorSeatOrder = a.ActorSeatOrder,
+                        Type = a.Type,
+                        Amount = a.Amount,
+                        IsAllIn = a.IsAllIn,
+                        ActionTimeUtc = a.ActionTimeUtc
+                    })
+                    .ToList()
             };
         }
 
@@ -70,7 +72,8 @@ internal static class ActiveHandExtensions
                 ActorSeatOrder = a.ActorSeatOrder,
                 Type = a.Type,
                 Amount = a.Amount,
-                IsAllIn = a.IsAllIn
+                IsAllIn = a.IsAllIn,
+                ActionTimeUtc = a.ActionTimeUtc
             }).ToList();
         }
     }

@@ -2,7 +2,7 @@
 
 public class HandSeat
 {
-    public int Order { get; set; }
+    public required int Order { get; set; }
     public required HandPlayer Player { get; set; }
     public bool IsDealer { get; set; }
     public bool IsSmallBlind { get; set; }

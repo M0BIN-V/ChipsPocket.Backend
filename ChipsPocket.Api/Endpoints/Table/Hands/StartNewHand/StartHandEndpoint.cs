@@ -20,7 +20,6 @@ public class StartHandEndpoint : IEndpoint
             Guid tableId,
             IActiveHandRepository activeHandRepo,
             IHandManagerService managerService,
-            IHandActionManager actionManager,
             ITableRepository tableRepository,
             ITableNotificationPublisher publisher,
             ICurrentUser currentUser,
@@ -42,10 +41,7 @@ public class StartHandEndpoint : IEndpoint
             activeHandRepo.AddHand(hand);
 
             await publisher.PublishAsync(tableId, new HandStartedNotification(hand.ToDto()));
-
-            actionManager.PostSmallBlind(hand);
-            actionManager.PostBigBlind(hand);
-
+            
             activeHandRepo.SaveHand(hand);
             await db.SaveChangesAsync();
 

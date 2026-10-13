@@ -2,9 +2,10 @@
 
 public class HandAction
 {
-    public Street Street { get; set; }
-    public int ActorSeatOrder { get; set; }
-    public HandActionType Type { get; set; }
-    public int? Amount { get; set; }
-    public bool IsAllIn { get; set; }
+    public required DateTimeOffset ActionTimeUtc { get; set; }
+    public required Street Street { get; set; }
+    public required int ActorSeatOrder { get; set; }
+    public required HandActionType Type { get; set; }
+    public required int? Amount { get; set; }
+    public required bool IsAllIn { get; set; }
 }

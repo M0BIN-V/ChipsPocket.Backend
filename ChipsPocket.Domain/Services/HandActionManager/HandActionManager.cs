@@ -1,6 +1,4 @@
-﻿using ChipsPocket.Domain.Entities;
-
-namespace ChipsPocket.Domain.Services.HandActionManager;
+﻿namespace ChipsPocket.Domain.Services.HandActionManager;
 
 public class HandActionManager : IHandActionManager
 {
@@ -23,7 +21,8 @@ public class HandActionManager : IHandActionManager
             ActorSeatOrder = seat.Order,
             Type = HandActionType.PostSmallBlind,
             Amount = amount,
-            IsAllIn = userBalance == amount
+            IsAllIn = userBalance == amount,
+            ActionTimeUtc = DateTimeOffset.UtcNow
         };
 
         seat.Player.Stack -= amount;
@@ -50,7 +49,8 @@ public class HandActionManager : IHandActionManager
             ActorSeatOrder = seat.Order,
             Type = HandActionType.PostBigBlind,
             Amount = amount,
-            IsAllIn = userBalance == amount
+            IsAllIn = userBalance == amount,
+            ActionTimeUtc = DateTimeOffset.UtcNow
         };
 
 

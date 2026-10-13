@@ -1,5 +1,6 @@
-﻿using ChipsPocket.Domain.Contracts;
-using ChipsPocket.Domain.Entities;
+﻿using ChipsPocket.Api.Common.Dtos;
+using ChipsPocket.Api.Common.Extensions;
+using ChipsPocket.Domain.Contracts;
 
 namespace ChipsPocket.Api.Endpoints.Table.Hands.GetHandState;
 
@@ -11,7 +12,7 @@ public class GetHandStateEndpoint : IEndpoint
             NotFound<string>,
             ForbidHttpResult,
             BadRequest<string>,
-            Ok<ActiveHand>>> (
+            Ok<ViewActiveHandDto>>> (
             Guid tableId,
             IMembersRepository membersRepo,
             ICurrentUser currentUser,
@@ -25,7 +26,7 @@ public class GetHandStateEndpoint : IEndpoint
             if (hand is null) return NotFound("table not found");
 
 
-            return Ok(hand);
+            return Ok(hand.ToDto());
         });
     }
 }
