@@ -33,13 +33,13 @@ public class HandActionManager : IHandActionManager
     public void PostBigBlind(ActiveHand hand)
     {
         if (hand.CurrentStreet != Street.PreFlop)
-            throw new InvalidOperationException("Small blind can only be posted in PreFlop street.");
+            throw new InvalidOperationException("Big blind can only be posted in PreFlop street.");
 
         var seat = hand.Seats.Single(s => s.IsBigBlind);
 
         var userBalance = seat.Player.Stack;
 
-        var amount = hand.SmallBlindAmount;
+        var amount = hand.BigBlindAmount;
 
         if (userBalance < amount) throw new InvalidOperationException("Insufficient balance to post big blind.");
 
