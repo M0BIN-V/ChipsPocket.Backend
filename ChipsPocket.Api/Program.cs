@@ -38,7 +38,6 @@ app.Services
     .GetRequiredService<RealtimeRegistry>()
     .AddTableRealtime();
 
-
 app.UseAuthentication();
 app.UseAuthorization();
 
